@@ -7,11 +7,11 @@ export async function getPosts() {
         .from("posts")
         .select(`
             *,
-            users (
+            users!user_id (
                 display_name,
                 avatar_url
             ),
-            post_tags (
+            post_tags!post_id (
                 tags (
                     name
                 )
@@ -34,11 +34,11 @@ export async function getPostById(id: string) {
         .from("posts")
         .select(`
             *,
-            users (
+            users!user_id (
                 display_name,
                 avatar_url
             ),
-            post_tags (
+            post_tags!post_id (
                 tags (
                     name
                 )

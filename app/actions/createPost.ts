@@ -14,8 +14,11 @@ export async function createPost(formData: FormData) {
     const tagsString = formData.get('tags') as string
     const tags = tagsString ? tagsString.split(',').filter(Boolean) : []
 
+    console.log('[createPost] Form data:', { title, content, type, tagsString, tags })
+
     if (!title || !content || !type) {
         // Basic validation
+        console.log('[createPost] Validation failed:', { title, content, type })
         return { error: 'Title, content, and type are required.' }
     }
 
@@ -96,6 +99,8 @@ export async function createPost(formData: FormData) {
         })
         .select('id')
         .single()
+
+    console.log('[createPost] Post insert result:', { post, error: postError, data: { user_id: userId, title, content, ui_type: type } })
 
     if (postError) {
         console.error('Error creating post:', postError)

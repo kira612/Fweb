@@ -7,7 +7,10 @@ import { Trash2 } from 'lucide-react'
 export default function DeleteButton({ postId }: { postId: string }) {
     const handleDelete = async () => {
         if (confirm('本当にこの記事を削除しますか？\nこの操作は取り消せません。')) {
-            await deletePost(postId)
+            const result = await deletePost(postId)
+            if (result?.error) {
+                alert('削除に失敗しました: ' + result.error)
+            }
         }
     }
 

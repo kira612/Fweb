@@ -7,7 +7,7 @@ export async function getCommentsByPostId(postId: string) {
         .from("comments")
         .select(`
             *,
-            users (
+            users!user_id (
                 display_name,
                 avatar_url
             )

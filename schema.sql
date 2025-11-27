@@ -73,13 +73,17 @@ create policy "Users are viewable by everyone" on public.users for select using 
 create policy "Everyone can insert users" on public.users for insert with check (true);
 create policy "Everyone can insert posts" on public.posts for insert with check (true);
 create policy "Everyone can update posts" on public.posts for update using (true);
+create policy "Everyone can delete posts" on public.posts for delete using (true);
 create policy "Everyone can insert comments" on public.comments for insert with check (true);
+create policy "Everyone can delete comments" on public.comments for delete using (true);
 create policy "Everyone can insert tags" on public.tags for insert with check (true);
 create policy "Everyone can insert post_tags" on public.post_tags for insert with check (true);
+create policy "Everyone can delete post_tags" on public.post_tags for delete using (true);
 
 -- Messages policies
 create policy "Users can view their own messages" on public.messages for select using (true); -- Simplified
 create policy "Users can send messages" on public.messages for insert with check (true); -- Simplified
+create policy "Everyone can delete messages" on public.messages for delete using (true);
 
 -- 7. Post Likes table
 create table public.post_likes (
