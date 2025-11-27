@@ -9,6 +9,8 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import CommentForm from "@/components/CommentForm";
+import LikeButton from "@/components/LikeButton";
+import DeleteButton from "@/components/DeleteButton";
 import { cookies } from "next/headers";
 import clsx from "clsx";
 
@@ -32,7 +34,8 @@ export default async function PostPage({ params }: { params: { id: string } }) {
         tags (
           name
         )
-      )
+      ),
+      post_likes (count)
     `)
         .eq("id", params.id)
         .single();
@@ -40,6 +43,18 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     if (postError || !post) {
         console.error("Error fetching post:", postError);
         notFound();
+    }
+
+    // Check if current user liked the post
+    let isLiked = false;
+    if (currentUserId) {
+        const { data: likeData } = await supabase
+            .from("post_likes")
+            .select("user_id")
+            .eq("post_id", params.id)
+            .eq("user_id", currentUserId)
+            .single();
+        isLiked = !!likeData;
     }
 
     // Fetch Comments
@@ -55,17 +70,21 @@ export default async function PostPage({ params }: { params: { id: string } }) {
         .eq("post_id", params.id)
         .order("created_at", { ascending: true });
 
+    const isOwner = currentUserId === post.user_id;
+    const likeCount = post.post_likes?.[0]?.count || 0;
+
     return (
         <main className="min-h-screen pb-24 bg-slate-50">
             {/* Header */}
             <header className="bg-white border-b sticky top-0 z-10">
-                <div className="container max-w-2xl py-4">
+                <div className="container max-w-2xl py-4 flex items-center justify-between">
                     <Link href="/">
                         <Button variant="ghost" size="sm" className="gap-2">
                             <ArrowLeft className="h-4 w-4" />
                             戻る
                         </Button>
                     </Link>
+                    {isOwner && <DeleteButton postId={post.id} />}
                 </div>
             </header>
 
@@ -88,11 +107,19 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 
                         <h1 className="text-3xl font-bold tracking-tight">{post.title}</h1>
 
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                                <User className="h-4 w-4" />
-                                <span>{post.users?.display_name || "名無し学生"}</span>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                    <User className="h-4 w-4" />
+                                    <span>{post.users?.display_name || "名無し学生"}</span>
+                                </div>
                             </div>
+
+                            <LikeButton
+                                postId={post.id}
+                                initialIsLiked={isLiked}
+                                initialCount={likeCount}
+                            />
                         </div>
 
                         {/* Tags */}
