@@ -4,16 +4,13 @@ import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import LikeButton from "@/components/LikeButton";
 import { Post } from "@/types";
 
 interface ArticleContentProps {
     post: Post;
-    isLiked: boolean;
-    likeCount: number;
 }
 
-export default function ArticleContent({ post, isLiked, likeCount }: ArticleContentProps) {
+export default function ArticleContent({ post }: ArticleContentProps) {
     return (
         <article className="bg-white pb-8 pt-6 border-b">
             <div className="container max-w-2xl space-y-6">
@@ -41,12 +38,6 @@ export default function ArticleContent({ post, isLiked, likeCount }: ArticleCont
                                 <span>{post.users?.display_name || "名無し学生"}</span>
                             </div>
                         </div>
-
-                        <LikeButton
-                            postId={post.id}
-                            initialIsLiked={isLiked}
-                            initialCount={likeCount}
-                        />
                     </div>
 
                     {/* Tags */}

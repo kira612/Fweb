@@ -16,8 +16,7 @@ export async function getPosts() {
                     name
                 )
             ),
-            comments (count),
-            post_likes (count)
+            comments (count)
         `)
         .order("created_at", { ascending: false });
 
@@ -43,8 +42,7 @@ export async function getPostById(id: string) {
                 tags (
                     name
                 )
-            ),
-            post_likes (count)
+            )
         `)
         .eq("id", id)
         .single();

@@ -7,7 +7,6 @@ import DeleteButton from "@/components/DeleteButton";
 import { cookies } from "next/headers";
 import { getPostById } from "@/lib/services/posts";
 import { getCommentsByPostId } from "@/lib/services/comments";
-import { getPostLikeStatus } from "@/lib/services/likes";
 import ArticleContent from "@/components/ArticleContent";
 import CommentList from "@/components/CommentList";
 
@@ -24,10 +23,8 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     }
 
     const comments = await getCommentsByPostId(params.id);
-    const isLiked = await getPostLikeStatus(params.id, currentUserId);
 
     const isOwner = currentUserId === post.user_id;
-    const likeCount = post.post_likes?.[0]?.count || 0;
 
     return (
         <main className="min-h-screen pb-24 bg-slate-50">
@@ -44,7 +41,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
                 </div>
             </header>
 
-            <ArticleContent post={post} isLiked={isLiked} likeCount={likeCount} />
+            <ArticleContent post={post} />
 
             <CommentList comments={comments} currentUserId={currentUserId} />
 

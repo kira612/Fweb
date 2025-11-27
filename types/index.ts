@@ -30,7 +30,6 @@ export interface Post {
     ui_type: 'Article' | 'Talk';
     users?: User;
     post_tags?: PostTag[];
-    post_likes?: { count: number }[];
     comments?: { count: number }[];
 }
 

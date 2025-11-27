@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, ThumbsUp, User, Calendar, Tag } from "lucide-react";
+import { MessageCircle, User, Calendar, Tag } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
@@ -14,7 +14,6 @@ export default function PostCard({ post }: PostCardProps) {
     const category = post.post_tags?.[0]?.tags?.name || "未分類";
     const author = post.users?.display_name || "名無し";
     const type = post.ui_type || "Talk";
-    const likes = post.post_likes?.[0]?.count || 0;
     const comments = post.comments?.[0]?.count || 0;
     const date = formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ja });
 
@@ -45,10 +44,6 @@ export default function PostCard({ post }: PostCardProps) {
                     </div>
                 </CardContent>
                 <CardFooter className="text-muted-foreground text-sm gap-4 pt-2">
-                    <div className="flex items-center gap-1">
-                        <ThumbsUp className="h-4 w-4" />
-                        <span>{likes}</span>
-                    </div>
                     <div className="flex items-center gap-1">
                         <MessageCircle className="h-4 w-4" />
                         <span>{comments}</span>

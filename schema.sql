@@ -80,3 +80,17 @@ create policy "Everyone can insert post_tags" on public.post_tags for insert wit
 -- Messages policies
 create policy "Users can view their own messages" on public.messages for select using (true); -- Simplified
 create policy "Users can send messages" on public.messages for insert with check (true); -- Simplified
+
+-- 7. Post Likes table
+create table public.post_likes (
+  post_id uuid references public.posts(id) on delete cascade not null,
+  user_id uuid references public.users(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  primary key (post_id, user_id)
+);
+
+alter table public.post_likes enable row level security;
+
+create policy "Public post_likes are viewable by everyone" on public.post_likes for select using (true);
+create policy "Everyone can insert post_likes" on public.post_likes for insert with check (true);
+create policy "Everyone can delete post_likes" on public.post_likes for delete using (true);
