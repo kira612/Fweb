@@ -1,71 +1,15 @@
-import { createClient } from "@/utils/supabase/server";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, MessageCircle, PenLine, Search, ThumbsUp, User } from "lucide-react";
+import { Bell, PenLine, Search, User } from "lucide-react";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-import { ja } from "date-fns/locale";
+import { getPosts } from "@/lib/services/posts";
+import { getPopularTags } from "@/lib/services/tags";
+import PostCard from "@/components/PostCard";
 
 export const revalidate = 0; // Disable caching for now to see updates immediately
 
 export default async function Home() {
-    const supabase = createClient();
-
-    // Fetch Posts
-    const { data: postsData, error: postsError } = await supabase
-        .from("posts")
-        .select(`
-            *,
-            users (
-                display_name
-            ),
-            post_tags (
-                tags (
-                    name
-                )
-            ),
-            comments (count)
-        `)
-        .order("created_at", { ascending: false });
-
-    if (postsError) {
-        console.error("Error fetching posts:", postsError);
-    }
-
-    const posts = postsData?.map((post) => ({
-        id: post.id,
-        title: post.title,
-        category: post.post_tags?.[0]?.tags?.name || "未分類", // Just taking the first tag for now as category
-        author: post.users?.display_name || "名無し",
-        type: post.ui_type || "Talk", // Default to Talk if null (though we enforced it)
-        likes: 0, // No likes table yet
-        comments: post.comments?.[0]?.count || 0,
-        date: formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ja }),
-    })) || [];
-
-    // Fetch Popular Tags
-    // We want to order by usage count. 
-    // Since we can't easily order by relation count in a simple query without RPC or view,
-    // we'll fetch tags and their counts, then sort in JS.
-    const { data: tagsData, error: tagsError } = await supabase
-        .from("tags")
-        .select(`
-            name,
-            post_tags (count)
-        `);
-
-    if (tagsError) {
-        console.error("Error fetching tags:", tagsError);
-    }
-
-    const popularTags = tagsData
-        ?.map((tag) => ({
-            name: tag.name,
-            count: tag.post_tags?.[0]?.count || 0,
-        }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10) // Top 10
-        .map(t => t.name) || [];
+    const posts = await getPosts();
+    const popularTags = await getPopularTags();
 
     return (
         <main className="min-h-screen bg-background pb-20">
@@ -114,37 +58,7 @@ export default async function Home() {
                     <div className="grid gap-4">
                         {posts.length > 0 ? (
                             posts.map((post) => (
-                                <Link href={`/posts/${post.id}`} key={post.id} className="block transition-transform hover:scale-[1.01]">
-                                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                                        <CardHeader className="pb-2">
-                                            <div className="flex justify-between items-start">
-                                                <Badge variant="outline" className="mb-2">{post.category}</Badge>
-                                                <span className="text-xs text-muted-foreground">{post.date}</span>
-                                            </div>
-                                            <CardTitle className="text-lg">{post.title}</CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="pb-2">
-                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                <span className="flex items-center gap-1">
-                                                    <User className="h-3 w-3" />
-                                                    {post.author}
-                                                </span>
-                                                <span>•</span>
-                                                <span>{post.type}</span>
-                                            </div>
-                                        </CardContent>
-                                        <CardFooter className="text-muted-foreground text-sm gap-4 pt-2">
-                                            <div className="flex items-center gap-1">
-                                                <ThumbsUp className="h-4 w-4" />
-                                                <span>{post.likes}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <MessageCircle className="h-4 w-4" />
-                                                <span>{post.comments}</span>
-                                            </div>
-                                        </CardFooter>
-                                    </Card>
-                                </Link>
+                                <PostCard key={post.id} post={post} />
                             ))
                         ) : (
                             <p className="text-muted-foreground">投稿はまだありません。</p>
@@ -162,3 +76,4 @@ export default async function Home() {
         </main>
     );
 }
+
