@@ -114,35 +114,37 @@ export default async function Home() {
                     <div className="grid gap-4">
                         {posts.length > 0 ? (
                             posts.map((post) => (
-                                <Card key={post.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                                    <CardHeader className="pb-2">
-                                        <div className="flex justify-between items-start">
-                                            <Badge variant="outline" className="mb-2">{post.category}</Badge>
-                                            <span className="text-xs text-muted-foreground">{post.date}</span>
-                                        </div>
-                                        <CardTitle className="text-lg">{post.title}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="pb-2">
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <span className="flex items-center gap-1">
-                                                <User className="h-3 w-3" />
-                                                {post.author}
-                                            </span>
-                                            <span>•</span>
-                                            <span>{post.type}</span>
-                                        </div>
-                                    </CardContent>
-                                    <CardFooter className="text-muted-foreground text-sm gap-4 pt-2">
-                                        <div className="flex items-center gap-1">
-                                            <ThumbsUp className="h-4 w-4" />
-                                            <span>{post.likes}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <MessageCircle className="h-4 w-4" />
-                                            <span>{post.comments}</span>
-                                        </div>
-                                    </CardFooter>
-                                </Card>
+                                <Link href={`/posts/${post.id}`} key={post.id} className="block transition-transform hover:scale-[1.01]">
+                                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                                        <CardHeader className="pb-2">
+                                            <div className="flex justify-between items-start">
+                                                <Badge variant="outline" className="mb-2">{post.category}</Badge>
+                                                <span className="text-xs text-muted-foreground">{post.date}</span>
+                                            </div>
+                                            <CardTitle className="text-lg">{post.title}</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="pb-2">
+                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <span className="flex items-center gap-1">
+                                                    <User className="h-3 w-3" />
+                                                    {post.author}
+                                                </span>
+                                                <span>•</span>
+                                                <span>{post.type}</span>
+                                            </div>
+                                        </CardContent>
+                                        <CardFooter className="text-muted-foreground text-sm gap-4 pt-2">
+                                            <div className="flex items-center gap-1">
+                                                <ThumbsUp className="h-4 w-4" />
+                                                <span>{post.likes}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <MessageCircle className="h-4 w-4" />
+                                                <span>{post.comments}</span>
+                                            </div>
+                                        </CardFooter>
+                                    </Card>
+                                </Link>
                             ))
                         ) : (
                             <p className="text-muted-foreground">投稿はまだありません。</p>

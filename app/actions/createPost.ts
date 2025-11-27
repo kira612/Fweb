@@ -41,7 +41,7 @@ export async function createPost(formData: FormData) {
 
         userId = newUser.id
         // Persist user ID in cookie
-        cookieStore.set('user_id', userId, {
+        cookieStore.set('user_id', userId as string, {
             path: '/',
             maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
             httpOnly: true,
@@ -139,5 +139,5 @@ export async function createPost(formData: FormData) {
         }
     }
 
-    redirect('/')
+    redirect(`/posts/${post.id}`)
 }

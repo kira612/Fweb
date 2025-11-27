@@ -10,9 +10,8 @@ services:
       - .:/app
       - /app/node_modules
     environment:
-      #      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-      #      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      - .env
+      - NEXT_PUBLIC_SUPABASE_URL=https://acruoteqdcqyfvorkjzi.supabase.co
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_y2f39PniIyMfWyASkveulQ_BCNz9Y6Q
       - WATCHPACK_POLLING=true
 
 # command: sh -c "npm install && npm run dev" # Ensure deps are installed if missing
