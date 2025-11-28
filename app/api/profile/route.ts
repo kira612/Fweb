@@ -61,7 +61,6 @@ export async function POST(request: Request) {
         .upsert({
             id: userId,
             ...updateData,
-            updated_at: new Date().toISOString(),
         })
 
     console.log('[API/profile] Update result:', { error: updateError })

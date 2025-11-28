@@ -51,9 +51,14 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
             if (response.ok) {
                 window.location.href = '/'
+            } else {
+                const data = await response.json()
+                console.error('Profile update failed:', data.error)
+                alert('プロフィールの更新に失敗しました: ' + (data.error || '不明なエラー'))
             }
         } catch (error) {
             console.error('Failed to update profile:', error)
+            alert('プロフィールの更新に失敗しました。')
         } finally {
             setIsSubmitting(false)
         }
