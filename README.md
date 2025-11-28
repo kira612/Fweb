@@ -1,62 +1,242 @@
 # Campus Connect
 
-**Campus Connect** は、大学生が情報を共有し、質問し、仲間とつながるためのソーシャルプラットフォームです。
+大学専用掲示板「Campus Connect」のプロジェクトリポジトリです。
+学生同士が情報を共有し、交流するためのプラットフォームです。
 
-## 機能
+## 必須要件
 
-- **投稿作成**: 考えや記事を共有できます。
-    - **Talk モード**: 気軽なつぶやきや簡単な質問に。
-    - **Article モード**: 体系的な知識や経験の共有に。
-- **タグシステム**: コンテンツをタグ（例: #楽単, #プログラミング）で整理。
-- **ゲストアクセス**: 新規ユーザーには自動的にゲストプロフィールを作成。
-- **モダンな UI**: Tailwind CSS と Shadcn UI を使用した、クリーンでレスポンシブなデザイン。
+- **Docker**: コンテナ化されたアプリケーションの実行に必要です。
+- **Git**: ソースコードの管理に必要です。
 
-## 技術スタック
+## 環境構築手順
 
-- **フロントエンド**: [Next.js 14](https://nextjs.org/) (App Router), [Tailwind CSS](https://tailwindcss.com/)
-- **UI コンポーネント**: [Shadcn UI](https://ui.shadcn.com/), [Lucide React](https://lucide.dev/)
-- **バックエンド / データベース**: [Supabase](https://supabase.com/) (PostgreSQL)
-- **インフラ**: Docker, Docker Compose
+以下の手順に従って、ローカル開発環境を立ち上げてください。
 
-## 始め方
+### 1. リポジトリのクローン
 
-### 前提条件
+```bash
+git clone <repository-url>
+cd Fban
+```
 
-- Docker & Docker Compose
-- Node.js (Docker外でのローカル開発用)
+### 2. 環境変数の設定
 
-### インストール
+`.env.local.example` をコピーして `.env` ファイルを作成し、Supabaseの接続情報を設定します。
 
-1. **リポジトリのクローン**
-   ```bash
-   git clone https://github.com/kira612/Fweb.git
-   cd Fweb
-   ```
+```bash
+cp .env.local.example .env
+```
 
-2. **環境設定**
-   環境変数の例ファイルをコピーし、Supabase の認証情報を入力してください。
-   ```bash
-   cp .env.local.example .env.local
-   ```
-   *注意: Supabase プロジェクトの URL と Anon Key が必要です。*
+`.env` ファイルを開き、以下の項目を入力してください。
 
-3. **データベースのセットアップ**
-   Supabase の SQL エディタで `schema.sql` のコマンドを実行し、必要なテーブルとポリシーを作成してください。
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-4. **Docker で実行**
-   ```bash
-   docker-compose up --build
-   ```
-   アプリケーションは `http://localhost:3000` で利用可能になります。
+### 3. アプリケーションの起動
 
-## ディレクトリ構成
+Docker Composeを使用してアプリケーションを起動します。
 
-- `app/`: Next.js App Router のページとレイアウト
-- `components/`: 再利用可能な UI コンポーネント
-- `utils/`: ユーティリティ関数 (Supabase クライアントなど)
-- `public/`: 静的アセット
-- `schema.sql`: データベーススキーマ定義
+```bash
+docker-compose up --build
+```
 
-## ライセンス
+起動後、ブラウザで `http://localhost:3000` にアクセスしてください。
 
-このプロジェクトは教育目的で作成されています。
+## データベースとストレージのセットアップ (最重要)
+
+本プロジェクトは Supabase をバックエンドとして使用しています。以下の手順でデータベースとストレージをセットアップしてください。
+
+### 1. データベースの構築 (SQL実行)
+
+Supabaseの管理画面で **SQL Editor** を開き、以下のSQLスクリプトをすべてコピー＆ペーストして実行してください。
+これにより、必要なテーブル、セキュリティポリシー(RLS)、トリガー、インデックスが作成されます。
+
+```sql
+-- ==========================================
+-- 1. テーブル作成
+-- ==========================================
+
+-- 1. Users table
+CREATE TABLE public.users (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  display_name text,
+  avatar_url text,
+  is_guest boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 2. Posts table
+CREATE TABLE public.posts (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  title text NOT NULL,
+  content text NOT NULL,
+  ui_type text NOT NULL CHECK (ui_type IN ('Article', 'Talk')),
+  image_url text, 
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 3. Comments table
+CREATE TABLE public.comments (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  post_id uuid REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  content text NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 4. Tags table
+CREATE TABLE public.tags (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name text UNIQUE NOT NULL
+);
+
+-- 5. Post_Tags table
+CREATE TABLE public.post_tags (
+  post_id uuid REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+  tag_id uuid REFERENCES public.tags(id) ON DELETE CASCADE NOT NULL,
+  PRIMARY KEY (post_id, tag_id)
+);
+
+-- 6. Messages table
+CREATE TABLE public.messages (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  sender_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  receiver_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  content text NOT NULL,
+  is_read boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 7. Post Likes table
+CREATE TABLE public.post_likes (
+  post_id uuid REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  PRIMARY KEY (post_id, user_id)
+);
+
+-- ==========================================
+-- 2. セキュリティ設定 (RLS & Policies)
+-- ==========================================
+
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_likes ENABLE ROW LEVEL SECURITY;
+
+-- --- Users ---
+CREATE POLICY "Public profiles are viewable by everyone" ON public.users FOR SELECT USING (true);
+CREATE POLICY "System can insert users" ON public.users FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
+
+-- --- Posts ---
+CREATE POLICY "Public posts are viewable by everyone" ON public.posts FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can insert posts" ON public.posts FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Users can update own posts" ON public.posts FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own posts" ON public.posts FOR DELETE USING (auth.uid() = user_id);
+
+-- --- Comments ---
+CREATE POLICY "Public comments are viewable by everyone" ON public.comments FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can insert comments" ON public.comments FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Users can delete own comments" ON public.comments FOR DELETE USING (auth.uid() = user_id);
+
+-- --- Tags ---
+CREATE POLICY "Tags are viewable by everyone" ON public.tags FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can insert tags" ON public.tags FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+-- --- Post Tags ---
+CREATE POLICY "Post tags are viewable by everyone" ON public.post_tags FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can insert post_tags" ON public.post_tags FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Users can delete post_tags via post" ON public.post_tags FOR DELETE USING (true);
+
+-- --- Messages ---
+CREATE POLICY "Users can view own messages" ON public.messages FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+CREATE POLICY "Users can send messages" ON public.messages FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = sender_id);
+CREATE POLICY "Users can delete own messages" ON public.messages FOR DELETE USING (auth.uid() = sender_id);
+
+-- --- Post Likes ---
+CREATE POLICY "Public likes are viewable by everyone" ON public.post_likes FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can toggle like" ON public.post_likes FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Users can remove own like" ON public.post_likes FOR DELETE USING (auth.uid() = user_id);
+
+-- ==========================================
+-- 3. Auth連携トリガー (自動ユーザー作成)
+-- ==========================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.users (id, display_name, avatar_url, is_guest)
+  VALUES (
+    new.id,
+    COALESCE(new.raw_user_meta_data->>'full_name', 'New User'),
+    COALESCE(new.raw_user_meta_data->>'avatar_url', ''),
+    false
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- ==========================================
+-- 4. パフォーマンス最適化 (インデックス作成)
+-- ==========================================
+
+CREATE INDEX IF NOT EXISTS idx_posts_user_id ON public.posts(user_id);
+CREATE INDEX IF NOT EXISTS idx_posts_created_at ON public.posts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_posts_ui_type ON public.posts(ui_type);
+CREATE INDEX IF NOT EXISTS idx_posts_type_created ON public.posts(ui_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_post_tags_post_id ON public.post_tags(post_id);
+CREATE INDEX IF NOT EXISTS idx_post_tags_tag_id ON public.post_tags(tag_id);
+CREATE INDEX IF NOT EXISTS idx_comments_post_id ON public.comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_comments_user_id ON public.comments(user_id);
+CREATE INDEX IF NOT EXISTS idx_comments_created_at ON public.comments(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_post_likes_post_id ON public.post_likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_post_likes_user_id ON public.post_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON public.messages(sender_id);
+CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON public.messages(receiver_id);
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.messages(created_at DESC);
+```
+
+### 2. Storage設定 (手動設定)
+
+SQLではStorageバケットの作成ができないため、以下の手順で手動設定してください。
+
+1.  Supabase管理画面の **Storage** に移動します。
+2.  **Create new bucket** をクリックし、以下の2つのバケットを作成します。
+    *   `avatars` (Public bucket: ON)
+    *   `post_images` (Public bucket: ON)
+3.  各バケットの **Policies** 設定を開き、**New policy** を作成します。
+    *   開発用として簡略化する場合は、"Give users access to all files" テンプレートなどを参考に、SELECT/INSERT/UPDATE/DELETE を許可する設定を行ってください（本番運用時は適切な制限を推奨）。
+
+## トラブルシューティング
+
+### 画像が表示されない場合
+`next.config.js` の `images.remotePatterns` に、使用しているSupabaseプロジェクトのホスト名が含まれているか確認してください。
+
+```javascript
+// next.config.js
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'your-project-id.supabase.co', // ここが正しいか確認
+      },
+    ],
+  },
+};
+```
+
+### ログイン状態がおかしい場合
+ブラウザのCookieを削除するか、シークレットウィンドウで試してみてください。開発環境ではCookieの挙動が不安定になることがあります。
