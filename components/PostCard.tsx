@@ -22,7 +22,7 @@ export default function PostCard({ post }: PostCardProps) {
     const comments = post.comments_count || 0;
 
     return (
-        <Card className="hover:shadow-md transition-shadow cursor-pointer relative group">
+        <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer relative group border-border/50 bg-card/50 backdrop-blur-sm">
             {/* Main Link (Stretched) */}
             <Link href={`/posts/${post.id}`} className="absolute inset-0 z-0" aria-label={post.title} />
 
