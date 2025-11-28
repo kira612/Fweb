@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { useTransition } from '@/components/providers/TransitionProvider';
@@ -8,9 +9,22 @@ export default function PageTransition({ children }: { children: React.ReactNode
     const pathname = usePathname();
     const { direction, originRect } = useTransition();
 
+    // Snapshot the originRect when the component mounts (new page loads)
+    // This ensures that even if the context updates (clears rect), the animation persists
+    const activeOriginRect = useRef(originRect);
+
+    // Update ref if originRect is present (e.g. just clicked)
+    // We only want to capture it if it's not null, to preserve it for the enter animation
+    if (originRect) {
+        activeOriginRect.current = originRect;
+    }
+
     const variants: Variants = {
         enter: (direction: string) => {
-            if (direction !== 'back' && originRect) {
+            // Use the ref value for the animation
+            const rect = activeOriginRect.current;
+
+            if (direction !== 'back' && rect) {
                 // Expansion animation (Float up from card)
                 return {
                     clipPath: `inset(0px 0px 0px 0px round 0px)`,
@@ -19,11 +33,11 @@ export default function PageTransition({ children }: { children: React.ReactNode
                     y: 0,
                     zIndex: 100,
                     transition: {
-                        duration: 0.5,
-                        ease: [0.22, 1, 0.36, 1], // Custom cubic bezier for smooth ease-out
+                        duration: 0.75, // Slower
+                        ease: [0.76, 0, 0.24, 1], // Dramatic ease-in-out
                         clipPath: {
-                            duration: 0.5,
-                            ease: [0.22, 1, 0.36, 1],
+                            duration: 0.75,
+                            ease: [0.76, 0, 0.24, 1],
                         }
                     }
                 };
@@ -38,16 +52,18 @@ export default function PageTransition({ children }: { children: React.ReactNode
             };
         },
         initial: (direction: string) => {
-            if (direction !== 'back' && originRect) {
-                const t = originRect.top;
-                const r = window.innerWidth - (originRect.left + originRect.width);
-                const b = window.innerHeight - (originRect.top + originRect.height);
-                const l = originRect.left;
+            const rect = activeOriginRect.current;
+
+            if (direction !== 'back' && rect) {
+                const t = rect.top;
+                const r = window.innerWidth - (rect.left + rect.width);
+                const b = window.innerHeight - (rect.top + rect.height);
+                const l = rect.left;
                 return {
                     clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 12px)`,
                     opacity: 1,
-                    scale: 0.95, // Start slightly smaller
-                    y: 20, // Start slightly lower
+                    scale: 0.95,
+                    y: 20,
                     zIndex: 100
                 }
             }
@@ -66,8 +82,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
             zIndex: 1,
             clipPath: 'inset(0px 0px 0px 0px round 0px)',
             transition: {
-                duration: 0.5,
-                ease: [0.22, 1, 0.36, 1]
+                duration: 0.75,
+                ease: [0.76, 0, 0.24, 1]
             }
         },
         exit: (direction: string) => ({
@@ -76,8 +92,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
             opacity: direction === 'back' ? 1 : 0,
             zIndex: direction === 'back' ? 50 : 0,
             transition: {
-                duration: 0.5,
-                ease: [0.22, 1, 0.36, 1]
+                duration: 0.75,
+                ease: [0.76, 0, 0.24, 1]
             }
         })
     };
