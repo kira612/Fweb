@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/Header";
 import { Analytics } from "@vercel/analytics/react"
+import { TransitionProvider } from '@/components/providers/TransitionProvider'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -26,8 +27,10 @@ export default async function RootLayout({
                 inter.variable
             )}>
                 <Header />
-                {children}
-                <Analytics />
+                <TransitionProvider>
+                    {children}
+                    <Analytics />
+                </TransitionProvider>
             </body>
         </html>
     );

@@ -89,7 +89,7 @@ export default function NewPostClient() {
                         {postType === 'Article' ? (
                             <motion.div
                                 key="Article"
-                                initial={{ opacity: 0, x: -50 }}
+                                initial={{ opacity: 0, x: 50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -50 }}
                                 transition={springTransition}
@@ -99,7 +99,7 @@ export default function NewPostClient() {
                         ) : (
                             <motion.div
                                 key="Talk"
-                                initial={{ opacity: 0, x: 50 }}
+                                initial={{ opacity: 0, x: -50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 50 }}
                                 transition={springTransition}
