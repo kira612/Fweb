@@ -5,6 +5,7 @@ import UserAvatar from "@/components/UserAvatar";
 import LikeButton from "@/components/features/LikeButton";
 import DeleteButton from "@/components/DeleteButton";
 import { Post } from "@/types";
+import Link from "next/link";
 
 interface PostHeaderProps {
     post: Post;
@@ -41,8 +42,11 @@ export default function PostHeader({ post, currentUserId, isOwner, likeCount, us
                     avatarUrl={post.user.avatar_url}
                     displayName={post.user.display_name}
                     size="sm"
+                    userId={post.user.id}
                 />
-                <span>{post.user.display_name || "名無し学生"}</span>
+                <Link href={`/users/${post.user.id}`} className="hover:underline hover:text-foreground transition-colors">
+                    {post.user.display_name || "名無し学生"}
+                </Link>
             </div>
 
             {/* Tags */}

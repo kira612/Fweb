@@ -3,6 +3,7 @@ import DateFormatter from "@/components/ui/DateFormatter";
 import UserAvatar from "@/components/UserAvatar";
 import clsx from "clsx";
 import { Comment } from "@/types";
+import Link from "next/link";
 
 interface CommentListProps {
     comments: Comment[];
@@ -34,12 +35,15 @@ export default function CommentList({ comments, currentUserId }: CommentListProp
                                     avatarUrl={comment.user.avatar_url}
                                     displayName={comment.user.display_name}
                                     size="sm"
+                                    userId={comment.user.id}
                                 />
                             </div>
 
                             <div className={clsx("max-w-[80%] space-y-1", isSelf ? "items-end" : "items-start")}>
                                 <div className={clsx("text-xs text-muted-foreground px-1", isSelf && "text-right")}>
-                                    {comment.user?.display_name || "名無し"}
+                                    <Link href={`/users/${comment.user.id}`} className="hover:underline hover:text-foreground transition-colors">
+                                        {comment.user?.display_name || "名無し"}
+                                    </Link>
                                 </div>
                                 <div
                                     className={clsx(

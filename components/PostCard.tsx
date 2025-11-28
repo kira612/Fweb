@@ -11,6 +11,7 @@ interface PostCardProps {
 
 import PostTypeBadge from "@/components/ui/PostTypeBadge";
 import DateFormatter from "@/components/ui/DateFormatter";
+import UserAvatar from "@/components/UserAvatar";
 
 // ... (imports)
 
@@ -51,8 +52,15 @@ export default function PostCard({ post }: PostCardProps) {
                 <CardContent className="pb-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {author}
+                            <UserAvatar
+                                avatarUrl={post.user.avatar_url}
+                                displayName={post.user.display_name}
+                                size="sm"
+                                userId={post.user.id}
+                            />
+                            <Link href={`/users/${post.user.id}`} className="hover:underline hover:text-foreground transition-colors">
+                                {author}
+                            </Link>
                         </span>
                     </div>
                 </CardContent>

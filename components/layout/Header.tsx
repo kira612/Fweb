@@ -1,7 +1,8 @@
-import { Bell, LogIn, MessageCircle } from "lucide-react";
+import { Bell, Heart, LogIn } from "lucide-react";
 import Link from "next/link";
 import SearchInput from "@/components/SearchInput";
 import UserAvatar from "@/components/UserAvatar";
+import DmIcon from "@/components/features/dm/DmIcon";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/server";
 
@@ -13,6 +14,7 @@ export default async function Header() {
 
     // Get profile if user exists
     let currentUser = null;
+    let unreadCount = 0;
     if (user) {
         const { data } = await supabase
             .from('users')
@@ -20,13 +22,20 @@ export default async function Header() {
             .eq('id', user.id)
             .single();
         currentUser = data;
+
+        const { count } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('receiver_id', user.id)
+            .eq('is_read', false);
+        unreadCount = count || 0;
     }
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center justify-between gap-4">
                 <Link href="/" className="font-bold text-xl tracking-tight hover:opacity-80 transition-opacity">
-                    Campus Connect
+                    福公大掲示板
                 </Link>
                 <SearchInput />
                 <div className="flex items-center gap-4">
@@ -34,7 +43,12 @@ export default async function Header() {
                         <>
                             <Link href="/messages">
                                 <button className="p-2 hover:bg-accent rounded-full transition-colors">
-                                    <MessageCircle className="h-5 w-5" />
+                                    <DmIcon initialUnreadCount={unreadCount} userId={user.id} />
+                                </button>
+                            </Link>
+                            <Link href="/favorites">
+                                <button className="p-2 hover:bg-accent rounded-full transition-colors">
+                                    <Heart className="h-5 w-5" />
                                 </button>
                             </Link>
                             <button className="p-2 hover:bg-accent rounded-full transition-colors">

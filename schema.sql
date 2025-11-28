@@ -66,7 +66,6 @@ CREATE TABLE public.post_likes (
 -- ==========================================
 -- 2. セキュリティ設定 (RLS & Policies)
 -- ==========================================
--- セキュリティ強化版のポリシーを適用
 
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
@@ -81,7 +80,7 @@ CREATE POLICY "Public profiles are viewable by everyone" ON public.users FOR SEL
 CREATE POLICY "System can insert users" ON public.users FOR INSERT WITH CHECK (true);
 CREATE POLICY "Users can update own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
 
--- --- Posts (削除・更新は本人のみ) ---
+-- --- Posts ---
 CREATE POLICY "Public posts are viewable by everyone" ON public.posts FOR SELECT USING (true);
 CREATE POLICY "Authenticated users can insert posts" ON public.posts FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Users can update own posts" ON public.posts FOR UPDATE USING (auth.uid() = user_id);
@@ -115,16 +114,13 @@ CREATE POLICY "Users can remove own like" ON public.post_likes FOR DELETE USING 
 -- ==========================================
 -- 3. Auth連携トリガー (強力な同期版)
 -- ==========================================
--- Google/GitHubなどのメタデータゆらぎを吸収し、INSERT/UPDATE両方に対応
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-
 RETURNS trigger AS $$
 BEGIN
   INSERT INTO public.users (id, display_name, avatar_url, is_guest)
   VALUES (
     new.id,
-    -- 名前: Google/GitHub/Email のどれかから取得
     COALESCE(
       new.raw_user_meta_data->>'full_name',
       new.raw_user_meta_data->>'name',
@@ -132,7 +128,6 @@ BEGIN
       new.email,
       'No Name'
     ),
-    -- アバター: Google/GitHub のどれかから取得
     COALESCE(
       new.raw_user_meta_data->>'avatar_url',
       new.raw_user_meta_data->>'picture',
@@ -140,7 +135,6 @@ BEGIN
     ),
     false
   )
-  -- 既に存在する場合は更新する (Upsert)
   ON CONFLICT (id) DO UPDATE SET
     display_name = EXCLUDED.display_name,
     avatar_url = EXCLUDED.avatar_url,
@@ -150,14 +144,38 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- トリガー登録
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT OR UPDATE ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
--- パフォーマンス用インデックス（検索を速くする）
+
+-- ==========================================
+-- 4. パフォーマンス最適化 (インデックス作成)
+-- ==========================================
+
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON public.posts(user_id);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON public.posts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_posts_ui_type ON public.posts(ui_type);
+CREATE INDEX IF NOT EXISTS idx_posts_type_created ON public.posts(ui_type, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_post_tags_post_id ON public.post_tags(post_id);
--- ...他、v5.0にあるインデックス群
+CREATE INDEX IF NOT EXISTS idx_post_tags_tag_id ON public.post_tags(tag_id);
+CREATE INDEX IF NOT EXISTS idx_comments_post_id ON public.comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_comments_user_id ON public.comments(user_id);
+CREATE INDEX IF NOT EXISTS idx_comments_created_at ON public.comments(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_post_likes_post_id ON public.post_likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_post_likes_user_id ON public.post_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON public.messages(sender_id);
+CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON public.messages(receiver_id);
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.messages(created_at DESC);
+
+
+-- ==========================================
+-- 5. Realtime設定 (WebSocket有効化)
+-- ==========================================
+-- 掲示板のコメントとDMのメッセージをリアルタイム配信対象に追加
+
+-- 既にPublicationが存在するか確認しつつ追加（エラー回避のためdoブロックは使わず、単純に追加コマンドを実行）
+-- ※ Supabaseではデフォルトで 'supabase_realtime' という publication が作成されています。
+
+ALTER PUBLICATION supabase_realtime ADD TABLE public.comments;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;

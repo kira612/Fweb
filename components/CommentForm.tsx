@@ -27,6 +27,12 @@ export default function CommentForm({ postId }: { postId: string }) {
                         className="flex-1"
                         autoComplete="off"
                         required
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                e.preventDefault()
+                                formRef.current?.requestSubmit()
+                            }
+                        }}
                     />
                     <Button type="submit" size="icon">
                         <Send className="h-4 w-4" />

@@ -1,9 +1,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { Post } from "@/types";
 
-export async function getPosts() {
+export async function getPosts(userId?: string) {
     const supabase = createClient();
-    const { data, error } = await supabase
+    let query = supabase
         .from("posts")
         .select(`
             *,
@@ -20,6 +20,12 @@ export async function getPosts() {
             comments (count)
         `)
         .order("created_at", { ascending: false });
+
+    if (userId) {
+        query = query.eq("user_id", userId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         console.error("Error fetching posts:", error);
