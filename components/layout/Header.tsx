@@ -5,6 +5,7 @@ import UserAvatar from "@/components/UserAvatar";
 import DmIcon from "@/components/features/dm/DmIcon";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/server";
+import SpringButton from "@/components/ui/SpringButton";
 
 export default async function Header() {
     const supabase = createClient();
@@ -42,32 +43,40 @@ export default async function Header() {
                     {currentUser ? (
                         <>
                             <Link href="/messages">
-                                <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
-                                    <DmIcon initialUnreadCount={unreadCount} userId={currentUser.id} />
-                                </div>
+                                <SpringButton asChild>
+                                    <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
+                                        <DmIcon initialUnreadCount={unreadCount} userId={currentUser.id} />
+                                    </div>
+                                </SpringButton>
                             </Link>
                             <Link href="/favorites">
-                                <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
-                                    <Heart className="h-5 w-5" />
-                                </div>
+                                <SpringButton asChild>
+                                    <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
+                                        <Heart className="h-5 w-5" />
+                                    </div>
+                                </SpringButton>
                             </Link>
 
                             <Link href="/profile">
-                                <div className="cursor-pointer hover:opacity-80 transition-opacity">
-                                    <UserAvatar
-                                        avatarUrl={currentUser?.avatar_url}
-                                        displayName={currentUser?.display_name}
-                                        size="sm"
-                                    />
-                                </div>
+                                <SpringButton asChild>
+                                    <div className="cursor-pointer hover:opacity-80 transition-opacity">
+                                        <UserAvatar
+                                            avatarUrl={currentUser?.avatar_url}
+                                            displayName={currentUser?.display_name}
+                                            size="sm"
+                                        />
+                                    </div>
+                                </SpringButton>
                             </Link>
                         </>
                     ) : (
                         <Link href="/login">
-                            <Button size="sm" variant="default" className="gap-2">
-                                <LogIn className="h-4 w-4" />
-                                ログイン
-                            </Button>
+                            <SpringButton asChild>
+                                <Button size="sm" variant="default" className="gap-2">
+                                    <LogIn className="h-4 w-4" />
+                                    ログイン
+                                </Button>
+                            </SpringButton>
                         </Link>
                     )}
                 </div>
