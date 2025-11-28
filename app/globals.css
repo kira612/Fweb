@@ -1,5 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base: Fresh Mint Green */
+    --background: 150 30% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Main: Vibrant Ocean Blue */
+    --primary: 210 90% 50%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Secondary: Soft Green */
+    --secondary: 150 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 150 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent: Energetic Orange */
+    --accent: 35 90% 60%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 20% 90%;
+    --input: 150 20% 90%;
+    --ring: 210 90% 50%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 90% 60%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 35 90% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 212 26% 83%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-main {
+    @apply bg-gradient-to-br from-primary to-blue-600;
+  }
+
+  .bg-gradient-accent {
+    @apply bg-gradient-to-br from-accent to-orange-500;
+  }
+
+  .bg-gradient-base {
+    @apply bg-gradient-to-br from-green-50 to-emerald-50;
+  }
+
+  .text-gradient-main {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary to-blue-600;
   }
 }
