@@ -139,10 +139,7 @@ BEGIN
     ),
     false
   )
-  ON CONFLICT (id) DO UPDATE SET
-    display_name = EXCLUDED.display_name,
-    avatar_url = EXCLUDED.avatar_url,
-    is_guest = EXCLUDED.is_guest;
+    ON CONFLICT (id) DO NOTHING;
     
   RETURN new;
 END;
