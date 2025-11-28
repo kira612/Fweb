@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2 } from 'lucide-react'
 import { useState, useRef } from 'react'
+import SpringButton from '@/components/ui/SpringButton'
 
 export default function TalkPostForm() {
     const [tags, setTags] = useState<string[]>([])
@@ -120,16 +121,18 @@ export default function TalkPostForm() {
 
             {/* Submit */}
             <div className="flex justify-end gap-4">
-                <Button type="submit" size="lg" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                        <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            送信中...
-                        </>
-                    ) : (
-                        '投稿する'
-                    )}
-                </Button>
+                <SpringButton asChild>
+                    <Button type="submit" size="lg" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                送信中...
+                            </>
+                        ) : (
+                            '投稿する'
+                        )}
+                    </Button>
+                </SpringButton>
             </div>
         </form>
     )

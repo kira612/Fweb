@@ -10,6 +10,7 @@ import { Send, Image as ImageIcon, X } from "lucide-react";
 import clsx from "clsx";
 import DateFormatter from "@/components/ui/DateFormatter";
 import Image from "next/image";
+import SpringButton from "@/components/ui/SpringButton";
 
 interface Message {
     id: string;
@@ -238,15 +239,17 @@ export default function ChatRoom({ initialMessages, currentUser, partnerUser }: 
                         ref={fileInputRef}
                         onChange={handleImageSelect}
                     />
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="text-muted-foreground hover:text-foreground"
-                    >
-                        <ImageIcon className="h-5 w-5" />
-                    </Button>
+                    <SpringButton asChild>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="text-muted-foreground hover:text-foreground"
+                        >
+                            <ImageIcon className="h-5 w-5" />
+                        </Button>
+                    </SpringButton>
                     <Input
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
@@ -254,9 +257,11 @@ export default function ChatRoom({ initialMessages, currentUser, partnerUser }: 
                         className="flex-1"
                         disabled={isSending}
                     />
-                    <Button type="submit" size="icon" disabled={isSending || (!newMessage.trim() && !selectedImage)}>
-                        <Send className="h-4 w-4" />
-                    </Button>
+                    <SpringButton asChild>
+                        <Button type="submit" size="icon" disabled={isSending || (!newMessage.trim() && !selectedImage)}>
+                            <Send className="h-4 w-4" />
+                        </Button>
+                    </SpringButton>
                 </form>
             </div>
         </div>

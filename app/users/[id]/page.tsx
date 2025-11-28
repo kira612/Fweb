@@ -6,6 +6,7 @@ import { getPosts } from "@/lib/services/posts";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
+import SpringButton from "@/components/ui/SpringButton";
 
 export const revalidate = 0;
 
@@ -44,10 +45,12 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
                         <h1 className="text-2xl font-bold">{profile.display_name}</h1>
                         {!isOwnProfile && currentUser && (
                             <Link href={`/messages/${profile.id}`}>
-                                <Button variant="outline" className="gap-2">
-                                    <MessageCircle className="h-4 w-4" />
-                                    メッセージを送る
-                                </Button>
+                                <SpringButton asChild>
+                                    <Button variant="outline" className="gap-2">
+                                        <MessageCircle className="h-4 w-4" />
+                                        メッセージを送る
+                                    </Button>
+                                </SpringButton>
                             </Link>
                         )}
                     </div>
