@@ -13,6 +13,7 @@ interface MarkdownViewerProps {
 export default function MarkdownViewer({ content }: MarkdownViewerProps) {
     useEffect(() => {
         // Dynamically import KaTeX CSS only on client side
+        // @ts-ignore
         import('katex/dist/katex.min.css')
     }, [])
 
