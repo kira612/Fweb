@@ -10,18 +10,19 @@ interface MarkdownViewerProps {
 
 export default function MarkdownViewer({ content }: MarkdownViewerProps) {
     return (
-        <ReactMarkdown
-            className="prose prose-slate max-w-none dark:prose-invert"
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-            components={{
-                // Open links in new tab
-                a: ({ node, ...props }) => (
-                    <a {...props} target="_blank" rel="noopener noreferrer" />
-                ),
-            }}
-        >
-            {content}
-        </ReactMarkdown>
+        <div className="prose prose-slate max-w-none dark:prose-invert">
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                components={{
+                    // Open links in new tab
+                    a: ({ node, ...props }) => (
+                        <a {...props} target="_blank" rel="noopener noreferrer" />
+                    ),
+                }}
+            >
+                {content}
+            </ReactMarkdown>
+        </div>
     )
 }
