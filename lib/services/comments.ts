@@ -20,5 +20,14 @@ export async function getCommentsByPostId(postId: string) {
         return [];
     }
 
-    return data as unknown as Comment[];
+    return data.map((comment: any) => ({
+        id: comment.id,
+        content: comment.content,
+        created_at: comment.created_at,
+        user: {
+            id: comment.user_id,
+            display_name: comment.users?.display_name || "Unknown",
+            avatar_url: comment.users?.avatar_url,
+        },
+    })) as Comment[];
 }

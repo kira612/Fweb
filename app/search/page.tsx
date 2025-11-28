@@ -1,10 +1,10 @@
-import { PenLine } from "lucide-react";
 import Link from "next/link";
 import { searchPostsByKeyword, searchPostsByTag } from "@/lib/services/search";
 import PostCard from "@/components/PostCard";
-import AppHeader from "@/components/AppHeader";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import CreatePostFab from "@/components/features/CreatePostFab";
+import { Post } from "@/types";
 
 export const revalidate = 0;
 
@@ -16,7 +16,7 @@ export default async function SearchPage({
     const keyword = searchParams.q;
     const tag = searchParams.tag;
 
-    let posts = [];
+    let posts: Post[] = [];
     let title = "";
 
     if (keyword) {
@@ -44,7 +44,6 @@ export default async function SearchPage({
 
     return (
         <main className="min-h-screen bg-background pb-20">
-            <AppHeader currentUser={currentUser} />
 
             <div className="container py-6 space-y-6">
                 {/* Search Title */}
@@ -75,12 +74,7 @@ export default async function SearchPage({
             </div>
 
             {/* FAB */}
-            <Link
-                href="/posts/new"
-                className="fixed bottom-6 right-6 bg-primary text-primary-foreground p-4 rounded-full shadow-lg hover:bg-primary/90 transition-all hover:scale-110"
-            >
-                <PenLine className="h-6 w-6" />
-            </Link>
+            <CreatePostFab isLoggedIn={!!userId} />
         </main>
     );
 }

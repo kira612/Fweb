@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { User } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ja } from "date-fns/locale";
+import DateFormatter from "@/components/ui/DateFormatter";
+import UserAvatar from "@/components/UserAvatar";
 import clsx from "clsx";
 import { Comment } from "@/types";
 
@@ -22,22 +21,29 @@ export default function CommentList({ comments, currentUserId }: CommentListProp
 
             <div className="space-y-4">
                 {comments?.map((comment) => {
-                    const isSelf = comment.user_id === currentUserId;
+                    const isSelf = comment.user.id === currentUserId;
                     return (
                         <div
                             key={comment.id}
                             className={clsx("flex gap-3", isSelf ? "flex-row-reverse" : "flex-row")}
                         >
+                            import DateFormatter from "@/components/ui/DateFormatter";
+                            import UserAvatar from "@/components/UserAvatar";
+
+                            // ...
+
                             {/* Avatar / Icon */}
                             <div className="flex-shrink-0">
-                                <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center">
-                                    <User className="h-5 w-5 text-slate-500" />
-                                </div>
+                                <UserAvatar
+                                    avatarUrl={comment.user.avatar_url}
+                                    displayName={comment.user.display_name}
+                                    size="sm"
+                                />
                             </div>
 
                             <div className={clsx("max-w-[80%] space-y-1", isSelf ? "items-end" : "items-start")}>
                                 <div className={clsx("text-xs text-muted-foreground px-1", isSelf && "text-right")}>
-                                    {comment.users?.display_name || "名無し"}
+                                    {comment.user?.display_name || "名無し"}
                                 </div>
                                 <div
                                     className={clsx(
@@ -49,12 +55,10 @@ export default function CommentList({ comments, currentUserId }: CommentListProp
                                 >
                                     {comment.content}
                                 </div>
-                                <div className={clsx("text-[10px] text-muted-foreground px-1", isSelf && "text-right")}>
-                                    {formatDistanceToNow(new Date(comment.created_at), {
-                                        addSuffix: true,
-                                        locale: ja,
-                                    })}
-                                </div>
+                                <DateFormatter
+                                    date={comment.created_at}
+                                    className={clsx("text-[10px] text-muted-foreground px-1", isSelf && "text-right")}
+                                />
                             </div>
                         </div>
                     );

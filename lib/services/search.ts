@@ -26,7 +26,25 @@ export async function searchPostsByKeyword(keyword: string) {
         return [];
     }
 
-    return data as unknown as Post[];
+    return data.map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        ui_type: post.ui_type,
+        image_url: post.image_url,
+        created_at: post.created_at,
+        user: {
+            id: post.user_id,
+            display_name: post.users?.display_name || "Unknown",
+            avatar_url: post.users?.avatar_url,
+        },
+        tags: post.post_tags?.map((pt: any) => ({
+            id: pt.tags?.id,
+            name: pt.tags?.name,
+        })) || [],
+        likes_count: 0,
+        comments_count: post.comments?.[0]?.count || 0,
+    })) as Post[];
 }
 
 export async function searchPostsByTag(tagName: string) {
@@ -54,5 +72,23 @@ export async function searchPostsByTag(tagName: string) {
         return [];
     }
 
-    return data as unknown as Post[];
+    return data.map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        ui_type: post.ui_type,
+        image_url: post.image_url,
+        created_at: post.created_at,
+        user: {
+            id: post.user_id,
+            display_name: post.users?.display_name || "Unknown",
+            avatar_url: post.users?.avatar_url,
+        },
+        tags: post.post_tags?.map((pt: any) => ({
+            id: pt.tags?.id,
+            name: pt.tags?.name,
+        })) || [],
+        likes_count: 0,
+        comments_count: post.comments?.[0]?.count || 0,
+    })) as Post[];
 }

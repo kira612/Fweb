@@ -6,11 +6,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Loader2 } from 'lucide-react'
 import { useState, useRef } from 'react'
 
 export default function TalkPostForm() {
     const [tags, setTags] = useState<string[]>([])
     const [tagInput, setTagInput] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const formRef = useRef<HTMLFormElement>(null)
 
     const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -27,10 +31,38 @@ export default function TalkPostForm() {
         setTags(tags.filter((tag) => tag !== tagToRemove))
     }
 
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setIsSubmitting(true)
+        setErrorMessage(null)
+
+        const formData = new FormData(e.currentTarget)
+
+        try {
+            const result = await createPost(formData)
+
+            if (result && 'success' in result && !result.success) {
+                setErrorMessage(result.error || '投稿に失敗しました。')
+                setIsSubmitting(false)
+            }
+        } catch (error) {
+            console.error('Submit error:', error)
+            setErrorMessage('予期しないエラーが発生しました。')
+            setIsSubmitting(false)
+        }
+    }
+
     return (
-        <form action={createPost} ref={formRef} className="space-y-8">
+        <form onSubmit={handleSubmit} ref={formRef} className="space-y-8">
             <input type="hidden" name="tags" value={tags.join(',')} />
             <input type="hidden" name="type" value="Talk" />
+
+            {/* Error Message */}
+            {errorMessage && (
+                <Alert variant="destructive">
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+            )}
 
             {/* Title */}
             <div className="space-y-2">
@@ -38,8 +70,9 @@ export default function TalkPostForm() {
                 <Input
                     id="title"
                     name="title"
-                    placeholder="何について話しますか？"
+                    placeholder="話したいことのタイトルを入力"
                     required
+                    disabled={isSubmitting}
                     className="text-lg font-medium"
                 />
             </div>
@@ -54,6 +87,7 @@ export default function TalkPostForm() {
                             <button
                                 type="button"
                                 onClick={() => removeTag(tag)}
+                                disabled={isSubmitting}
                                 className="hover:text-destructive ml-1"
                             >
                                 ×
@@ -66,6 +100,7 @@ export default function TalkPostForm() {
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleTagKeyDown}
+                    disabled={isSubmitting}
                     placeholder="例: 雑談 質問"
                 />
             </div>
@@ -78,14 +113,22 @@ export default function TalkPostForm() {
                     name="content"
                     placeholder="補足があれば入力してください..."
                     rows={8}
+                    disabled={isSubmitting}
                     className="font-mono text-sm"
                 />
             </div>
 
             {/* Submit */}
             <div className="flex justify-end gap-4">
-                <Button type="submit" size="lg">
-                    投稿する
+                <Button type="submit" size="lg" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                        <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            送信中...
+                        </>
+                    ) : (
+                        '投稿する'
+                    )}
                 </Button>
             </div>
         </form>

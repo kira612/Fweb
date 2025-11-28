@@ -50,5 +50,6 @@ export async function toggleLike(postId: string) {
 
     revalidatePath(`/posts/${postId}`)
     revalidatePath('/') // Update home page counts too
+    revalidatePath('/favorites') // Update favorites page
     return { success: true }
 }

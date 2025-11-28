@@ -2,46 +2,40 @@ export interface User {
     id: string;
     display_name: string;
     avatar_url?: string | null;
+    is_guest?: boolean;
 }
 
 export interface Tag {
     id: string;
     name: string;
-}
-
-export interface PostTag {
-    tags: Tag;
+    count?: number;
 }
 
 export interface Comment {
     id: string;
     content: string;
     created_at: string;
-    user_id: string;
-    users?: User;
+    user: User;
 }
 
 export interface Post {
     id: string;
     title: string;
     content: string;
-    image_url: string | null;
-    created_at: string;
-    user_id: string;
     ui_type: 'Article' | 'Talk';
-    users?: User;
-    post_tags?: PostTag[];
-    comments?: { count: number }[];
-}
-
-export interface PostWithCounts extends Post {
+    image_url?: string | null;
+    created_at: string;
+    user: User;
+    tags: Tag[];
     likes_count: number;
     comments_count: number;
-    category: string;
-    author_name: string;
 }
 
-// Standardized server action result type
-export type ServerActionResult<T = void> =
-    | { success: true; data?: T }
-    | { success: false; error: string };
+// Helper type for Supabase joins which might return arrays or nulls
+export interface PostWithRelations extends Omit<Post, 'user' | 'tags'> {
+    user_id: string;
+    users: User;
+    post_tags: { tags: Tag }[];
+    comments: { count: number }[];
+    post_likes: { count: number }[];
+}

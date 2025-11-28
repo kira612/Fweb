@@ -1,0 +1,31 @@
+---
+
+### ⚙️ 重要：ご自身で行う設定（ダッシュボード）
+
+コードを入れただけでは動きません。**SupabaseとGoogle/GitHubを繋ぐ「鍵」の設定**が必要です。
+
+#### 1. SupabaseのリダイレクトURL設定
+OAuthが終わった後に戻ってくる場所を許可リストに登録します。
+1.  Supabase管理画面 > **Authentication** > **URL Configuration**
+2.  **Redirect URLs** に以下を追加して保存：
+    * `http://localhost:3000/auth/callback`
+
+#### 2. GitHubの設定 (GitHub Login)
+1.  [GitHub Developer Settings](https://github.com/settings/developers) > **New OAuth App**
+2.  **Homepage URL**: `http://localhost:3000`
+3.  **Authorization callback URL**: `https://<あなたのPROJECT_ID>.supabase.co/auth/v1/callback`
+    * ※Supabase管理画面の Auth > Providers > GitHub に表示されている「Callback URL」をコピペしてください。
+4.  作成後、**Client ID** と **Client Secret** をコピー。
+5.  Supabase管理画面 > Auth > Providers > **GitHub** を開き、IDとSecretを貼り付けて **Enabled** にする。
+
+#### 3. Googleの設定 (Google Login)
+1.  [Google Cloud Console](https://console.cloud.google.com/) でプロジェクト作成。
+2.  **APIs & Services** > **OAuth consent screen** を設定（Externalで作成）。
+3.  **Credentials** > **Create Credentials** > **OAuth client ID** (Web application)。
+4.  **Authorized redirect URIs**: `https://<あなたのPROJECT_ID>.supabase.co/auth/v1/callback`
+    * ※これもSupabase管理画面に表示されているURLです。
+5.  作成後、IDとSecretをコピーして、Supabase管理画面 > Auth > Providers > **Google** に貼り付けて **Enabled** にする。
+
+---
+
+設定が少し大変ですが、これを乗り越えれば「モダンなログイン画面」の完成です！頑張ってください！

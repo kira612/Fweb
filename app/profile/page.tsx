@@ -16,6 +16,9 @@ export default async function ProfilePage() {
         return <RegisterForm />
     }
 
+    // Get auth user for metadata fallback
+    const { data: { user } } = await supabase.auth.getUser()
+
     const { data: userData, error } = await supabase
         .from('users')
         .select('display_name, avatar_url')
@@ -24,5 +27,11 @@ export default async function ProfilePage() {
 
     console.log('[ProfilePage] User data:', userData, 'Error:', error)
 
-    return <ProfileForm initialData={userData} />
+    // Fallback to auth metadata if public profile is missing
+    const initialData = userData || (user ? {
+        display_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
+        avatar_url: user.user_metadata?.avatar_url || ''
+    } : null)
+
+    return <ProfileForm initialData={initialData} />
 }

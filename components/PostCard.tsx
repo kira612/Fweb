@@ -2,8 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, User, Tag } from "lucide-react";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-import { ja } from "date-fns/locale";
 import { Post } from "@/types";
 import Image from "next/image";
 
@@ -11,12 +9,16 @@ interface PostCardProps {
     post: Post;
 }
 
+import PostTypeBadge from "@/components/ui/PostTypeBadge";
+import DateFormatter from "@/components/ui/DateFormatter";
+
+// ... (imports)
+
 export default function PostCard({ post }: PostCardProps) {
-    const category = post.post_tags?.[0]?.tags?.name || "未分類";
-    const author = post.users?.display_name || "名無し";
+    const category = post.tags?.[0]?.name || "未分類";
+    const author = post.user?.display_name || "名無し";
     const type = post.ui_type || "Talk";
-    const comments = post.comments?.[0]?.count || 0;
-    const date = formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ja });
+    const comments = post.comments_count || 0;
 
     return (
         <Link href={`/posts/${post.id}`} className="block transition-transform hover:scale-[1.01]">
@@ -36,10 +38,8 @@ export default function PostCard({ post }: PostCardProps) {
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">
-                            <Badge variant={type === 'Article' ? 'default' : 'secondary'}>
-                                {type}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">{date}</span>
+                            <PostTypeBadge type={type} />
+                            <DateFormatter date={post.created_at} className="text-xs text-muted-foreground" />
                         </div>
                         <Badge variant="outline" className="text-xs">
                             <Tag className="h-3 w-3 mr-1" />

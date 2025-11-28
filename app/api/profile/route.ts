@@ -57,8 +57,11 @@ export async function POST(request: Request) {
 
     const { error: updateError } = await supabase
         .from('users')
-        .update(updateData)
-        .eq('id', userId)
+        .upsert({
+            id: userId,
+            ...updateData,
+            updated_at: new Date().toISOString(),
+        })
 
     console.log('[API/profile] Update result:', { error: updateError })
 

@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label'
 import { ArrowLeft, Upload } from 'lucide-react'
 import Link from 'next/link'
 import UserAvatar from '@/components/UserAvatar'
+import { createClient } from '@/utils/supabase/client'
+import { useRouter } from 'next/navigation'
 
 interface ProfileFormProps {
     initialData: {
@@ -18,6 +20,14 @@ interface ProfileFormProps {
 export default function ProfileForm({ initialData }: ProfileFormProps) {
     const [displayName, setDisplayName] = useState(initialData?.display_name || '')
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const router = useRouter()
+    const supabase = createClient()
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
+        router.push('/login')
+        router.refresh()
+    }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -101,6 +111,17 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                     <Button type="submit" className="w-full">
                         保存する
                     </Button>
+
+                    <div className="pt-4 border-t">
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            className="w-full"
+                            onClick={handleLogout}
+                        >
+                            ログアウト
+                        </Button>
+                    </div>
                 </form>
             </div>
         </main>
