@@ -38,19 +38,21 @@ export default function NewPostClient() {
                             <RadioGroupItem value="Article" id="article" className="peer sr-only" />
                             <Label
                                 htmlFor="article"
-                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer relative z-10 h-full"
+                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer relative h-full overflow-hidden"
                             >
                                 {postType === 'Article' && (
                                     <motion.div
                                         layoutId="active-post-type"
-                                        className="absolute inset-0 border-2 border-primary rounded-md z-[-1]"
+                                        className="absolute inset-0 border-2 border-primary rounded-md z-10"
                                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                     />
                                 )}
-                                <BookOpen className="mb-3 h-6 w-6" />
-                                <div className="text-center">
-                                    <div className="font-semibold">Article</div>
-                                    <div className="text-xs text-muted-foreground mt-1">しっかり共有</div>
+                                <div className="relative z-20 flex flex-col items-center w-full">
+                                    <BookOpen className="mb-3 h-6 w-6" />
+                                    <div className="text-center">
+                                        <div className="font-semibold">Article</div>
+                                        <div className="text-xs text-muted-foreground mt-1">しっかり共有</div>
+                                    </div>
                                 </div>
                             </Label>
                         </div>
@@ -58,19 +60,21 @@ export default function NewPostClient() {
                             <RadioGroupItem value="Talk" id="talk" className="peer sr-only" />
                             <Label
                                 htmlFor="talk"
-                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer relative z-10 h-full"
+                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer relative h-full overflow-hidden"
                             >
                                 {postType === 'Talk' && (
                                     <motion.div
                                         layoutId="active-post-type"
-                                        className="absolute inset-0 border-2 border-primary rounded-md z-[-1]"
+                                        className="absolute inset-0 border-2 border-primary rounded-md z-10"
                                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                     />
                                 )}
-                                <MessageCircle className="mb-3 h-6 w-6" />
-                                <div className="text-center">
-                                    <div className="font-semibold">Talk</div>
-                                    <div className="text-xs text-muted-foreground mt-1">気軽につぶやく</div>
+                                <div className="relative z-20 flex flex-col items-center w-full">
+                                    <MessageCircle className="mb-3 h-6 w-6" />
+                                    <div className="text-center">
+                                        <div className="font-semibold">Talk</div>
+                                        <div className="text-xs text-muted-foreground mt-1">気軽につぶやく</div>
+                                    </div>
                                 </div>
                             </Label>
                         </div>
