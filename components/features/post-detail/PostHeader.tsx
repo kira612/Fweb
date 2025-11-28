@@ -6,6 +6,7 @@ import LikeButton from "@/components/features/LikeButton";
 import DeleteButton from "@/components/DeleteButton";
 import { Post } from "@/types";
 import Link from "next/link";
+import EditArticleButton from "@/components/features/post-detail/EditArticleButton";
 
 interface PostHeaderProps {
     post: Post;
@@ -23,7 +24,12 @@ export default function PostHeader({ post, currentUserId, isOwner, likeCount, us
                     <PostTypeBadge type={post.ui_type} />
                     <DateFormatter date={post.created_at} className="text-sm text-muted-foreground" />
                 </div>
-                {isOwner && <DeleteButton postId={post.id} />}
+                <div className="flex items-center gap-2">
+                    {isOwner && post.ui_type === 'Article' && (
+                        <EditArticleButton postId={post.id} initialContent={post.content} />
+                    )}
+                    {isOwner && <DeleteButton postId={post.id} />}
+                </div>
             </div>
 
             {/* Title and Like Button */}
