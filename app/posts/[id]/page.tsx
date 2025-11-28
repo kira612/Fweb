@@ -7,12 +7,12 @@ import DeleteButton from "@/components/DeleteButton";
 import { cookies } from "next/headers";
 import { getPostById } from "@/lib/services/posts";
 import { getCommentsByPostId } from "@/lib/services/comments";
-import ArticleContent from "@/components/ArticleContent";
 import CommentList from "@/components/CommentList";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import UserAvatar from "@/components/UserAvatar";
 import Image from "next/image";
+import MarkdownViewer from "@/components/ui/MarkdownViewer";
 
 export const revalidate = 0;
 
@@ -58,7 +58,52 @@ export default async function PostPage({ params }: { params: { id: string } }) {
                 </div>
             )}
 
-            <ArticleContent post={post} />
+
+            {/* Article Content */}
+            <article className="bg-white pb-8 pt-6 border-b">
+                <div className="container max-w-2xl space-y-6">
+                    {/* Header */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <Badge variant={post.ui_type === "Article" ? "default" : "secondary"}>
+                                {post.ui_type}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">
+                                {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                            </span>
+                        </div>
+
+                        <h1 className="text-3xl font-bold tracking-tight">{post.title}</h1>
+
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <UserAvatar
+                                avatarUrl={post.users?.avatar_url}
+                                displayName={post.users?.display_name}
+                                size="sm"
+                            />
+                            <span>{post.users?.display_name || "名無し学生"}</span>
+                        </div>
+
+                        {/* Tags */}
+                        {post.post_tags && post.post_tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {post.post_tags.map((pt: any) => (
+                                    <Badge key={pt.tags?.name} variant="outline" className="text-xs">
+                                        #{pt.tags?.name || "Unknown"}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Content with Markdown */}
+                    {post.content && (
+                        <div className="mt-6">
+                            <MarkdownViewer content={post.content} />
+                        </div>
+                    )}
+                </div>
+            </article>
 
             <CommentList comments={comments} currentUserId={currentUserId} />
 

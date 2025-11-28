@@ -6,15 +6,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Upload, X } from 'lucide-react'
+import { Upload, X, Bold, Heading3, Table, Code, Superscript, Eye, Edit } from 'lucide-react'
 import { useState, useRef } from 'react'
 import Image from 'next/image'
+import MarkdownViewer from '@/components/ui/MarkdownViewer'
 
 export default function ArticlePostForm() {
     const [tags, setTags] = useState<string[]>([])
     const [tagInput, setTagInput] = useState('')
     const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [content, setContent] = useState('')
+    const [showPreview, setShowPreview] = useState(false)
     const formRef = useRef<HTMLFormElement>(null)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
 
     const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if ((e.key === 'Enter' || e.key === ' ') && tagInput.trim()) {
@@ -43,6 +47,35 @@ export default function ArticlePostForm() {
         const fileInput = document.getElementById('post_image') as HTMLInputElement
         if (fileInput) fileInput.value = ''
     }
+
+    // Toolbar functions to insert Markdown
+    const insertMarkdown = (before: string, after: string = '', defaultText: string = '') => {
+        const textarea = textareaRef.current
+        if (!textarea) return
+
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        const selectedText = content.substring(start, end) || defaultText
+        const newText = content.substring(0, start) + before + selectedText + after + content.substring(end)
+
+        setContent(newText)
+
+        // Set cursor position after inserted text
+        setTimeout(() => {
+            textarea.focus()
+            const newPos = start + before.length + selectedText.length
+            textarea.setSelectionRange(newPos, newPos)
+        }, 0)
+    }
+
+    const insertBold = () => insertMarkdown('**', '**', '太字テキスト')
+    const insertHeading = () => insertMarkdown('### ', '', '見出し')
+    const insertTable = () => {
+        const tableTemplate = `\n| 列1 | 列2 | 列3 |\n| --- | --- | --- |\n| データ | データ | データ |\n| データ | データ | データ |\n`
+        insertMarkdown(tableTemplate, '')
+    }
+    const insertCodeBlock = () => insertMarkdown('```\n', '\n```', 'コードをここに入力')
+    const insertMath = () => insertMarkdown('$$\n', '\n$$', 'E = mc^2')
 
     return (
         <form action={createPost} ref={formRef} className="space-y-8">
@@ -126,17 +159,60 @@ export default function ArticlePostForm() {
                 />
             </div>
 
-            {/* Content */}
+            {/* Content with Markdown Toolbar */}
             <div className="space-y-2">
-                <Label htmlFor="content">本文 (Markdown対応)</Label>
-                <Textarea
-                    id="content"
-                    name="content"
-                    placeholder="記事の内容を書いてください..."
-                    required
-                    rows={15}
-                    className="font-mono text-sm"
-                />
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="content">本文 (Markdown & 数式対応)</Label>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowPreview(!showPreview)}
+                    >
+                        {showPreview ? <Edit className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+                        {showPreview ? '編集' : 'プレビュー'}
+                    </Button>
+                </div>
+
+                {/* Toolbar */}
+                {!showPreview && (
+                    <div className="flex flex-wrap gap-1 p-2 border rounded-md bg-muted/30">
+                        <Button type="button" variant="ghost" size="sm" onClick={insertBold} title="太字">
+                            <Bold className="h-4 w-4" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={insertHeading} title="見出し">
+                            <Heading3 className="h-4 w-4" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={insertTable} title="表">
+                            <Table className="h-4 w-4" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={insertCodeBlock} title="コードブロック">
+                            <Code className="h-4 w-4" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={insertMath} title="数式">
+                            <Superscript className="h-4 w-4" />
+                        </Button>
+                    </div>
+                )}
+
+                {/* Editor or Preview */}
+                {showPreview ? (
+                    <div className="min-h-[400px] p-4 border rounded-md bg-background">
+                        <MarkdownViewer content={content} />
+                    </div>
+                ) : (
+                    <Textarea
+                        ref={textareaRef}
+                        id="content"
+                        name="content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        placeholder="記事の内容を書いてください...&#10;&#10;**太字**&#10;### 見出し&#10;- リスト&#10;```code```&#10;$$ E = mc^2 $$"
+                        required
+                        rows={15}
+                        className="font-mono text-sm"
+                    />
+                )}
             </div>
 
             {/* Submit */}
