@@ -9,6 +9,10 @@ import { getPostById } from "@/lib/services/posts";
 import { getCommentsByPostId } from "@/lib/services/comments";
 import ArticleContent from "@/components/ArticleContent";
 import CommentList from "@/components/CommentList";
+import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
+import UserAvatar from "@/components/UserAvatar";
+import Image from "next/image";
 
 export const revalidate = 0;
 
@@ -23,7 +27,6 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     }
 
     const comments = await getCommentsByPostId(params.id);
-
     const isOwner = currentUserId === post.user_id;
 
     return (
@@ -40,6 +43,20 @@ export default async function PostPage({ params }: { params: { id: string } }) {
                     {isOwner && <DeleteButton postId={post.id} />}
                 </div>
             </header>
+
+            {/* Image Display */}
+            {post.image_url && (
+                <div className="container max-w-2xl mt-6">
+                    <div className="relative w-full h-96 rounded-lg overflow-hidden">
+                        <Image
+                            src={post.image_url}
+                            alt={post.title}
+                            fill
+                            className="object-cover"
+                        />
+                    </div>
+                </div>
+            )}
 
             <ArticleContent post={post} />
 

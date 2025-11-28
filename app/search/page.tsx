@@ -1,9 +1,10 @@
-import { Badge } from "@/components/ui/badge";
-import { Bell, PenLine, User } from "lucide-react";
+import { PenLine } from "lucide-react";
 import Link from "next/link";
 import { searchPostsByKeyword, searchPostsByTag } from "@/lib/services/search";
 import PostCard from "@/components/PostCard";
-import SearchInput from "@/components/SearchInput";
+import AppHeader from "@/components/AppHeader";
+import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 
 export const revalidate = 0;
 
@@ -26,25 +27,24 @@ export default async function SearchPage({
         title = `#${tag} の記事`;
     }
 
+    // Get current user for header
+    const supabase = createClient();
+    const cookieStore = cookies();
+    const userId = cookieStore.get('user_id')?.value;
+
+    let currentUser = null;
+    if (userId) {
+        const { data } = await supabase
+            .from('users')
+            .select('id, display_name, avatar_url')
+            .eq('id', userId)
+            .single();
+        currentUser = data;
+    }
+
     return (
         <main className="min-h-screen bg-background pb-20">
-            {/* Header */}
-            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="container flex h-14 items-center justify-between gap-4">
-                    <Link href="/" className="font-bold text-xl tracking-tight hover:opacity-80">
-                        Campus Connect
-                    </Link>
-                    <SearchInput />
-                    <div className="flex items-center gap-4">
-                        <button className="p-2 hover:bg-accent rounded-full transition-colors">
-                            <Bell className="h-5 w-5" />
-                        </button>
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
-                            <User className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <AppHeader currentUser={currentUser} />
 
             <div className="container py-6 space-y-6">
                 {/* Search Title */}
@@ -75,10 +75,11 @@ export default async function SearchPage({
             </div>
 
             {/* FAB */}
-            <Link href="/posts/new">
-                <button className="fixed bottom-6 right-6 h-14 w-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                    <PenLine className="h-6 w-6" />
-                </button>
+            <Link
+                href="/posts/new"
+                className="fixed bottom-6 right-6 bg-primary text-primary-foreground p-4 rounded-full shadow-lg hover:bg-primary/90 transition-all hover:scale-110"
+            >
+                <PenLine className="h-6 w-6" />
             </Link>
         </main>
     );

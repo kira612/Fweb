@@ -1,10 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, User, Calendar, Tag } from "lucide-react";
+import { MessageCircle, User, Tag } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Post } from "@/types";
+import Image from "next/image";
 
 interface PostCardProps {
     post: Post;
@@ -20,6 +21,18 @@ export default function PostCard({ post }: PostCardProps) {
     return (
         <Link href={`/posts/${post.id}`} className="block transition-transform hover:scale-[1.01]">
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                {/* Image Thumbnail */}
+                {post.image_url && (
+                    <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
+                        <Image
+                            src={post.image_url}
+                            alt={post.title}
+                            fill
+                            className="object-cover"
+                        />
+                    </div>
+                )}
+
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">

@@ -1,7 +1,7 @@
 export interface User {
     id: string;
     display_name: string;
-    avatar_url?: string;
+    avatar_url?: string | null;
 }
 
 export interface Tag {
@@ -25,6 +25,7 @@ export interface Post {
     id: string;
     title: string;
     content: string;
+    image_url: string | null;
     created_at: string;
     user_id: string;
     ui_type: 'Article' | 'Talk';
@@ -39,3 +40,8 @@ export interface PostWithCounts extends Post {
     category: string;
     author_name: string;
 }
+
+// Standardized server action result type
+export type ServerActionResult<T = void> =
+    | { success: true; data?: T }
+    | { success: false; error: string };

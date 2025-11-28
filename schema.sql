@@ -1,100 +1,86 @@
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
+-- ==========================================
+-- 1. テーブル作成
+-- ==========================================
 
--- 1. Users table
-create table public.users (
-  id uuid default uuid_generate_v4() primary key, -- Changed from auth.users reference
+-- Users
+CREATE TABLE public.users (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   display_name text,
   avatar_url text,
-  is_guest boolean default true,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  is_guest boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 2. Posts table
-create table public.posts (
-  id uuid default uuid_generate_v4() primary key,
-  user_id uuid references public.users(id) on delete cascade not null,
-  title text not null,
-  content text not null, -- Markdown
-  ui_type text not null check (ui_type in ('Article', 'Talk')), -- Article or Talk
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+-- Posts
+-- image_url カラムもここで作ります
+CREATE TABLE public.posts (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  title text NOT NULL,
+  content text NOT NULL,
+  ui_type text NOT NULL CHECK (ui_type IN ('Article', 'Talk')),
+  image_url text, 
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 3. Comments table
-create table public.comments (
-  id uuid default uuid_generate_v4() primary key,
-  post_id uuid references public.posts(id) on delete cascade not null,
-  user_id uuid references public.users(id) on delete cascade not null,
-  content text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+-- Comments
+CREATE TABLE public.comments (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  post_id uuid REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  content text NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 4. Tags table
-create table public.tags (
-  id uuid default uuid_generate_v4() primary key,
-  name text unique not null
+-- Tags
+CREATE TABLE public.tags (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name text UNIQUE NOT NULL
 );
 
--- 5. Post_Tags (Intermediate table)
-create table public.post_tags (
-  post_id uuid references public.posts(id) on delete cascade not null,
-  tag_id uuid references public.tags(id) on delete cascade not null,
-  primary key (post_id, tag_id)
+-- Post_Tags
+CREATE TABLE public.post_tags (
+  post_id uuid REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+  tag_id uuid REFERENCES public.tags(id) ON DELETE CASCADE NOT NULL,
+  PRIMARY KEY (post_id, tag_id)
 );
 
--- 6. Messages table (1:1 DM)
-create table public.messages (
-  id uuid default uuid_generate_v4() primary key,
-  sender_id uuid references public.users(id) on delete cascade not null,
-  receiver_id uuid references public.users(id) on delete cascade not null,
-  content text not null,
-  is_read boolean default false,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+-- Messages
+CREATE TABLE public.messages (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  sender_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  receiver_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  content text NOT NULL,
+  is_read boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- RLS Policies (Simplified for Guest Access)
-alter table public.users enable row level security;
-alter table public.posts enable row level security;
-alter table public.comments enable row level security;
-alter table public.tags enable row level security;
-alter table public.post_tags enable row level security;
-alter table public.messages enable row level security;
-
--- Allow read access to everyone
-create policy "Public posts are viewable by everyone" on public.posts for select using (true);
-create policy "Public comments are viewable by everyone" on public.comments for select using (true);
-create policy "Tags are viewable by everyone" on public.tags for select using (true);
-create policy "Post tags are viewable by everyone" on public.post_tags for select using (true);
-create policy "Users are viewable by everyone" on public.users for select using (true);
-
--- Allow insert/update for everyone (Guest Mode)
--- Note: In a real app, you'd want to verify the user_id matches the cookie, but for now we trust the client/server action.
-create policy "Everyone can insert users" on public.users for insert with check (true);
-create policy "Everyone can insert posts" on public.posts for insert with check (true);
-create policy "Everyone can update posts" on public.posts for update using (true);
-create policy "Everyone can delete posts" on public.posts for delete using (true);
-create policy "Everyone can insert comments" on public.comments for insert with check (true);
-create policy "Everyone can delete comments" on public.comments for delete using (true);
-create policy "Everyone can insert tags" on public.tags for insert with check (true);
-create policy "Everyone can insert post_tags" on public.post_tags for insert with check (true);
-create policy "Everyone can delete post_tags" on public.post_tags for delete using (true);
-
--- Messages policies
-create policy "Users can view their own messages" on public.messages for select using (true); -- Simplified
-create policy "Users can send messages" on public.messages for insert with check (true); -- Simplified
-create policy "Everyone can delete messages" on public.messages for delete using (true);
-
--- 7. Post Likes table
-create table public.post_likes (
-  post_id uuid references public.posts(id) on delete cascade not null,
-  user_id uuid references public.users(id) on delete cascade not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  primary key (post_id, user_id)
+-- Post Likes
+CREATE TABLE public.post_likes (
+  post_id uuid REFERENCES public.posts(id) ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  PRIMARY KEY (post_id, user_id)
 );
 
-alter table public.post_likes enable row level security;
+-- ==========================================
+-- 2. セキュリティ設定 (RLS & Policies)
+-- ==========================================
 
-create policy "Public post_likes are viewable by everyone" on public.post_likes for select using (true);
-create policy "Everyone can insert post_likes" on public.post_likes for insert with check (true);
-create policy "Everyone can delete post_likes" on public.post_likes for delete using (true);
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_likes ENABLE ROW LEVEL SECURITY;
+
+-- 全員に許可（開発用）
+CREATE POLICY "Users access" ON public.users FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Posts access" ON public.posts FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Comments access" ON public.comments FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Tags access" ON public.tags FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Post_Tags access" ON public.post_tags FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Messages access" ON public.messages FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Post_Likes access" ON public.post_likes FOR ALL USING (true) WITH CHECK (true);
