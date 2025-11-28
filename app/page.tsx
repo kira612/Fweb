@@ -11,23 +11,24 @@ import { createClient } from "@/utils/supabase/server";
 export const revalidate = 0;
 
 export default async function Home() {
-    const posts = await getPosts();
-    const popularTags = await getPopularTags();
-
-    // Get current user for header
-    const supabase = createClient();
+    // Parallel data fetching for better performance
     const cookieStore = cookies();
     const userId = cookieStore.get('user_id')?.value;
 
-    let currentUser = null;
-    if (userId) {
-        const { data } = await supabase
-            .from('users')
-            .select('id, display_name, avatar_url')
-            .eq('id', userId)
-            .single();
-        currentUser = data;
-    }
+    // Fetch all data in parallel
+    const [posts, popularTags, currentUser] = await Promise.all([
+        getPosts(),
+        getPopularTags(),
+        userId ? (async () => {
+            const supabase = createClient();
+            const { data } = await supabase
+                .from('users')
+                .select('id, display_name, avatar_url')
+                .eq('id', userId)
+                .single();
+            return data;
+        })() : Promise.resolve(null)
+    ]);
 
     return (
         <main className="min-h-screen bg-background pb-20">

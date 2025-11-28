@@ -20,13 +20,16 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     const cookieStore = cookies();
     const currentUserId = cookieStore.get("user_id")?.value;
 
-    const post = await getPostById(params.id);
+    // Parallel data fetching for better performance
+    const [post, comments] = await Promise.all([
+        getPostById(params.id),
+        getCommentsByPostId(params.id)
+    ]);
 
     if (!post) {
         notFound();
     }
 
-    const comments = await getCommentsByPostId(params.id);
     const isOwner = currentUserId === post.user_id;
 
     return (
