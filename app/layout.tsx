@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/Header";
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -26,6 +27,7 @@ export default async function RootLayout({
             )}>
                 <Header />
                 {children}
+                <Analytics />
             </body>
         </html>
     );
