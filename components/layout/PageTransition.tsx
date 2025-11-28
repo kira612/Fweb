@@ -25,7 +25,36 @@ export default function PageTransition({ children }: { children: React.ReactNode
             const rect = activeOriginRect.current;
 
             if (direction !== 'back' && rect) {
-                // Expansion animation (Float up from card)
+                // Check if it's the FAB (small square/circle)
+                const isFab = rect.width < 100 && rect.height < 100;
+
+                if (isFab) {
+                    // Tube/Megaphone animation (Circular Reveal)
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const maxRadius = Math.max(
+                        window.innerWidth,
+                        window.innerHeight
+                    ) * 1.5;
+
+                    return {
+                        clipPath: `circle(${maxRadius}px at ${centerX}px ${centerY}px)`,
+                        opacity: 1,
+                        scale: 1,
+                        y: 0,
+                        zIndex: 100,
+                        transition: {
+                            duration: 0.75,
+                            ease: [0.76, 0, 0.24, 1],
+                            clipPath: {
+                                duration: 0.75,
+                                ease: [0.76, 0, 0.24, 1],
+                            }
+                        }
+                    };
+                }
+
+                // Standard Card Expansion
                 return {
                     clipPath: `inset(0px 0px 0px 0px round 0px)`,
                     opacity: 1,
@@ -33,8 +62,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
                     y: 0,
                     zIndex: 100,
                     transition: {
-                        duration: 0.75, // Slower
-                        ease: [0.76, 0, 0.24, 1], // Dramatic ease-in-out
+                        duration: 0.75,
+                        ease: [0.76, 0, 0.24, 1],
                         clipPath: {
                             duration: 0.75,
                             ease: [0.76, 0, 0.24, 1],
@@ -55,6 +84,21 @@ export default function PageTransition({ children }: { children: React.ReactNode
             const rect = activeOriginRect.current;
 
             if (direction !== 'back' && rect) {
+                const isFab = rect.width < 100 && rect.height < 100;
+
+                if (isFab) {
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    // Start as a small circle at the FAB position
+                    return {
+                        clipPath: `circle(28px at ${centerX}px ${centerY}px)`,
+                        opacity: 1,
+                        scale: 0, // Start from scale 0 to look like it's coming OUT of the tube
+                        y: 0,
+                        zIndex: 100
+                    }
+                }
+
                 const t = rect.top;
                 const r = window.innerWidth - (rect.left + rect.width);
                 const b = window.innerHeight - (rect.top + rect.height);
