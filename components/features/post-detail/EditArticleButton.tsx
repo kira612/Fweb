@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Pencil, Loader2 } from 'lucide-react'
 import { updatePost } from '@/app/actions/updatePost'
 import { useRouter } from 'next/navigation'
+import SpringButton from '@/components/ui/SpringButton'
 
 interface EditArticleButtonProps {
     postId: string
@@ -48,10 +49,12 @@ export default function EditArticleButton({ postId, initialContent }: EditArticl
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-2">
-                    <Pencil className="h-4 w-4" />
-                    編集
-                </Button>
+                <SpringButton asChild>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-2">
+                        <Pencil className="h-4 w-4" />
+                        編集
+                    </Button>
+                </SpringButton>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
@@ -69,13 +72,17 @@ export default function EditArticleButton({ postId, initialContent }: EditArticl
                     />
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)} disabled={isSubmitting}>
-                        キャンセル
-                    </Button>
-                    <Button onClick={handleUpdate} disabled={isSubmitting}>
-                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        保存する
-                    </Button>
+                    <SpringButton asChild>
+                        <Button variant="outline" onClick={() => setOpen(false)} disabled={isSubmitting}>
+                            キャンセル
+                        </Button>
+                    </SpringButton>
+                    <SpringButton asChild>
+                        <Button onClick={handleUpdate} disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            保存する
+                        </Button>
+                    </SpringButton>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

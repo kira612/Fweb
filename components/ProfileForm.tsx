@@ -9,6 +9,7 @@ import Link from 'next/link'
 import UserAvatar from '@/components/UserAvatar'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import SpringButton from '@/components/ui/SpringButton'
 
 interface ProfileFormProps {
     initialData: {
@@ -117,26 +118,30 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                     </div>
 
                     {/* Submit Button */}
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                保存中...
-                            </>
-                        ) : (
-                            '保存する'
-                        )}
-                    </Button>
+                    <SpringButton asChild>
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    保存中...
+                                </>
+                            ) : (
+                                '保存する'
+                            )}
+                        </Button>
+                    </SpringButton>
 
                     <div className="pt-4 border-t">
-                        <Button
-                            type="button"
-                            variant="destructive"
-                            className="w-full"
-                            onClick={handleLogout}
-                        >
-                            ログアウト
-                        </Button>
+                        <SpringButton asChild>
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                className="w-full"
+                                onClick={handleLogout}
+                            >
+                                ログアウト
+                            </Button>
+                        </SpringButton>
                     </div>
                 </form>
             </div>
