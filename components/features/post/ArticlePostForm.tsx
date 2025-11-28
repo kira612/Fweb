@@ -197,9 +197,21 @@ export default function ArticlePostForm() {
 
                 {/* Editor or Preview */}
                 {showPreview ? (
-                    <div className="min-h-[400px] p-4 border rounded-md bg-background">
-                        <MarkdownViewer content={content} />
-                    </div>
+                    <>
+                        <div className="min-h-[400px] p-4 border rounded-md bg-background">
+                            <MarkdownViewer content={content} />
+                        </div>
+                        {/* Hidden textarea to maintain form submission */}
+                        <Textarea
+                            ref={textareaRef}
+                            id="content"
+                            name="content"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            required
+                            className="hidden"
+                        />
+                    </>
                 ) : (
                     <Textarea
                         ref={textareaRef}
