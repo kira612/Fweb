@@ -1,4 +1,4 @@
-import { Bell, LogIn } from "lucide-react";
+import { Bell, LogIn, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import SearchInput from "@/components/SearchInput";
 import UserAvatar from "@/components/UserAvatar";
@@ -32,6 +32,11 @@ export default async function Header() {
                 <div className="flex items-center gap-4">
                     {currentUser ? (
                         <>
+                            <Link href="/messages">
+                                <button className="p-2 hover:bg-accent rounded-full transition-colors">
+                                    <MessageCircle className="h-5 w-5" />
+                                </button>
+                            </Link>
                             <button className="p-2 hover:bg-accent rounded-full transition-colors">
                                 <Bell className="h-5 w-5" />
                             </button>
