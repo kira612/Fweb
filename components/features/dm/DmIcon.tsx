@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { MessageCircle } from "lucide-react";
 import clsx from "clsx";
@@ -18,14 +18,14 @@ export default function DmIcon({ initialUnreadCount, userId }: DmIconProps) {
         setUnreadCount(initialUnreadCount);
     }, [initialUnreadCount]);
 
-    const fetchCount = async () => {
+    const fetchCount = useCallback(async () => {
         const { count } = await supabase
             .from('messages')
             .select('*', { count: 'exact', head: true })
             .eq('receiver_id', userId)
             .eq('is_read', false);
         setUnreadCount(count || 0);
-    };
+    }, [supabase, userId]);
 
     useEffect(() => {
         // Fetch on mount to ensure accuracy if navigated from client-side cache
@@ -50,7 +50,7 @@ export default function DmIcon({ initialUnreadCount, userId }: DmIconProps) {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [userId]);
+    }, [userId, fetchCount, supabase]);
 
     return (
         <div className="relative">
