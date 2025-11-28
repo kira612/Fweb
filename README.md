@@ -44,7 +44,7 @@ Docker Composeを使用してアプリケーションを起動します。
 docker-compose up --build
 ```
 
-起動後、ブラウザで `http://localhost:3000` にアクセスしてください。
+起動後、ブラウザで `https://fweb-one.vercel.app/` にアクセスしてください。
 
 ## データベースとストレージのセットアップ (最重要)
 
@@ -83,11 +83,11 @@ social loginのための**SupabaseとGoogle/GitHubを繋ぐ「鍵」の設定**�
 OAuthが終わった後に戻ってくる場所を許可リストに登録します。
 1.  Supabase管理画面 > **Authentication** > **URL Configuration**
 2.  **Redirect URLs** に以下を追加して保存：
-    * `http://localhost:3000/auth/callback`
+    * `https://fweb-one.vercel.app/auth/callback`
 
 #### 2. GitHubの設定 (GitHub Login)
 1.  [GitHub Developer Settings](https://github.com/settings/developers) > **New OAuth App**
-2.  **Homepage URL**: `http://localhost:3000`
+2.  **Homepage URL**: `https://fweb-one.vercel.app/`
 3.  **Authorization callback URL**: `https://<あなたのPROJECT_ID>.supabase.co/auth/v1/callback`
     * ※Supabase管理画面の Auth > Providers > GitHub に表示されている「Callback URL」をコピペしてください。
 4.  作成後、**Client ID** と **Client Secret** をコピー。

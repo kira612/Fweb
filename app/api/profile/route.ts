@@ -4,14 +4,15 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
     const supabase = createClient()
-    const cookieStore = cookies()
-    const userId = cookieStore.get('user_id')?.value
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    console.log('[API/profile] Starting profile update for user:', userId)
+    console.log('[API/profile] Starting profile update for user:', user?.id)
 
-    if (!userId) {
+    if (authError || !user) {
         return NextResponse.json({ error: 'User not authenticated.' }, { status: 401 })
     }
+
+    const userId = user.id
 
     const formData = await request.formData()
     const displayName = formData.get('display_name') as string

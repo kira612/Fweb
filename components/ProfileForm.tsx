@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, Upload } from 'lucide-react'
+import { ArrowLeft, Upload, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import UserAvatar from '@/components/UserAvatar'
 import { createClient } from '@/utils/supabase/client'
@@ -20,6 +20,7 @@ interface ProfileFormProps {
 export default function ProfileForm({ initialData }: ProfileFormProps) {
     const [displayName, setDisplayName] = useState(initialData?.display_name || '')
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const router = useRouter()
     const supabase = createClient()
 
@@ -39,6 +40,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        setIsSubmitting(true)
         const formData = new FormData(e.currentTarget)
 
         try {
@@ -52,6 +54,8 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
             }
         } catch (error) {
             console.error('Failed to update profile:', error)
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -108,8 +112,15 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                     </div>
 
                     {/* Submit Button */}
-                    <Button type="submit" className="w-full">
-                        保存する
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                保存中...
+                            </>
+                        ) : (
+                            '保存する'
+                        )}
                     </Button>
 
                     <div className="pt-4 border-t">
