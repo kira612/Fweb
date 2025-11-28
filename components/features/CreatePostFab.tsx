@@ -26,7 +26,7 @@ export default function CreatePostFab({ isLoggedIn }: CreatePostFabProps) {
         <>
             <motion.button
                 onClick={handleClick}
-                className="fixed bottom-6 right-6 bg-primary text-primary-foreground p-4 rounded-full shadow-lg hover:bg-primary/90 z-50"
+                className="fixed bottom-6 right-6 bg-gradient-main text-primary-foreground p-4 rounded-full shadow-lg hover:shadow-xl z-50"
                 aria-label="新規投稿"
                 whileHover={{
                     y: [0, -4, 0],
