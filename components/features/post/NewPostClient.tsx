@@ -13,6 +13,8 @@ import TalkPostForm from '@/components/features/post/TalkPostForm'
 export default function NewPostClient() {
     const [postType, setPostType] = useState<'Article' | 'Talk'>('Talk')
 
+    const springTransition = { type: "spring" as const, stiffness: 260, damping: 20 }
+
     return (
         <main className="min-h-screen bg-background pb-20">
             {/* Header */}
@@ -44,7 +46,7 @@ export default function NewPostClient() {
                                     <motion.div
                                         layoutId="active-post-type"
                                         className="absolute inset-0 border-2 border-primary rounded-md z-10"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        transition={springTransition}
                                     />
                                 )}
                                 <div className="relative z-20 flex flex-col items-center w-full">
@@ -66,7 +68,7 @@ export default function NewPostClient() {
                                     <motion.div
                                         layoutId="active-post-type"
                                         className="absolute inset-0 border-2 border-primary rounded-md z-10"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        transition={springTransition}
                                     />
                                 )}
                                 <div className="relative z-20 flex flex-col items-center w-full">
@@ -82,25 +84,25 @@ export default function NewPostClient() {
                 </div>
 
                 {/* Render appropriate form based on selected type */}
-                <div className="relative min-h-[400px]">
-                    <AnimatePresence mode="wait">
+                <div className="relative min-h-[400px] overflow-hidden">
+                    <AnimatePresence mode="popLayout" initial={false}>
                         {postType === 'Article' ? (
                             <motion.div
                                 key="Article"
-                                initial={{ opacity: 0, x: -20 }}
+                                initial={{ opacity: 0, x: -50 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                exit={{ opacity: 0, x: -50 }}
+                                transition={springTransition}
                             >
                                 <ArticlePostForm />
                             </motion.div>
                         ) : (
                             <motion.div
                                 key="Talk"
-                                initial={{ opacity: 0, x: 20 }}
+                                initial={{ opacity: 0, x: 50 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                exit={{ opacity: 0, x: 50 }}
+                                transition={springTransition}
                             >
                                 <TalkPostForm />
                             </motion.div>
