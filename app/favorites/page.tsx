@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import PostCard from '@/components/PostCard'
@@ -10,15 +9,15 @@ import { getFavoritePosts } from '@/lib/services/favorites'
 export const revalidate = 0
 
 export default async function FavoritesPage() {
-    const cookieStore = cookies()
-    const userId = cookieStore.get('user_id')?.value
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
     // Redirect if not logged in
-    if (!userId) {
-        redirect('/')
+    if (!user) {
+        redirect('/login')
     }
 
-    const supabase = createClient()
+    const userId = user.id
 
     // Get current user for header
     const { data: currentUser } = await supabase

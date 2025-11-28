@@ -1,6 +1,6 @@
 import { getPosts } from "@/lib/services/posts";
 import { getPopularTags } from "@/lib/services/tags";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 import CreatePostFab from "@/components/features/CreatePostFab";
 import PostFeed from "@/components/features/home/PostFeed";
 import Sidebar from "@/components/features/home/Sidebar";
@@ -9,8 +9,9 @@ export const revalidate = 0;
 
 export default async function Home() {
     // Parallel data fetching for better performance
-    const cookieStore = cookies();
-    const userId = cookieStore.get('user_id')?.value;
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const isLoggedIn = !!user;
 
     // Fetch all data in parallel
     const [posts, popularTags] = await Promise.all([
@@ -28,11 +29,11 @@ export default async function Home() {
                 </div>
 
                 {/* Sidebar */}
-                <Sidebar popularTags={popularTags} isLoggedIn={!!userId} />
+                <Sidebar popularTags={popularTags} isLoggedIn={isLoggedIn} />
             </div>
 
             {/* FAB */}
-            <CreatePostFab isLoggedIn={!!userId} />
+            <CreatePostFab isLoggedIn={isLoggedIn} />
         </main>
     );
 }

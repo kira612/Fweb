@@ -5,8 +5,8 @@ import { cookies } from "next/headers";
 export async function GET(request: NextRequest) {
     const { searchParams, origin } = new URL(request.url);
     const code = searchParams.get("code");
-    // ログイン後のリダイレクト先 (デフォルトはトップページ)
-    const next = searchParams.get("next") ?? "/";
+    // ログイン後のリダイレクト先 (デフォルトはプロフィールページ)
+    const next = searchParams.get("next") ?? "/profile";
 
     if (code) {
         const cookieStore = cookies();

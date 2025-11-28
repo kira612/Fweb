@@ -66,7 +66,7 @@ CREATE TABLE public.post_likes (
 -- ==========================================
 -- 2. セキュリティ設定 (RLS & Policies)
 -- ==========================================
--- ★ここを大幅に修正しました（セキュリティ強化）
+-- セキュリティ強化版のポリシーを適用
 
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
@@ -78,11 +78,10 @@ ALTER TABLE public.post_likes ENABLE ROW LEVEL SECURITY;
 
 -- --- Users ---
 CREATE POLICY "Public profiles are viewable by everyone" ON public.users FOR SELECT USING (true);
--- ユーザー作成はトリガーが行うためINSERTポリシーは不要だが、開発用に残すなら以下
 CREATE POLICY "System can insert users" ON public.users FOR INSERT WITH CHECK (true);
 CREATE POLICY "Users can update own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
 
--- --- Posts (★ここが重要：削除・更新は本人のみ) ---
+-- --- Posts (削除・更新は本人のみ) ---
 CREATE POLICY "Public posts are viewable by everyone" ON public.posts FOR SELECT USING (true);
 CREATE POLICY "Authenticated users can insert posts" ON public.posts FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "Users can update own posts" ON public.posts FOR UPDATE USING (auth.uid() = user_id);
@@ -100,7 +99,7 @@ CREATE POLICY "Authenticated users can insert tags" ON public.tags FOR INSERT WI
 -- --- Post Tags ---
 CREATE POLICY "Post tags are viewable by everyone" ON public.post_tags FOR SELECT USING (true);
 CREATE POLICY "Authenticated users can insert post_tags" ON public.post_tags FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Users can delete post_tags via post" ON public.post_tags FOR DELETE USING (true); -- 親記事の削除権限に依存するため緩めておく
+CREATE POLICY "Users can delete post_tags via post" ON public.post_tags FOR DELETE USING (true);
 
 -- --- Messages ---
 CREATE POLICY "Users can view own messages" ON public.messages FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
@@ -114,42 +113,51 @@ CREATE POLICY "Users can remove own like" ON public.post_likes FOR DELETE USING 
 
 
 -- ==========================================
--- 3. Auth連携トリガー (自動ユーザー作成)
+-- 3. Auth連携トリガー (強力な同期版)
 -- ==========================================
+-- Google/GitHubなどのメタデータゆらぎを吸収し、INSERT/UPDATE両方に対応
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
+
 RETURNS trigger AS $$
 BEGIN
   INSERT INTO public.users (id, display_name, avatar_url, is_guest)
   VALUES (
     new.id,
-    COALESCE(new.raw_user_meta_data->>'full_name', 'New User'),
-    COALESCE(new.raw_user_meta_data->>'avatar_url', ''),
+    -- 名前: Google/GitHub/Email のどれかから取得
+    COALESCE(
+      new.raw_user_meta_data->>'full_name',
+      new.raw_user_meta_data->>'name',
+      new.raw_user_meta_data->>'user_name',
+      new.email,
+      'No Name'
+    ),
+    -- アバター: Google/GitHub のどれかから取得
+    COALESCE(
+      new.raw_user_meta_data->>'avatar_url',
+      new.raw_user_meta_data->>'picture',
+      ''
+    ),
     false
-  );
+  )
+  -- 既に存在する場合は更新する (Upsert)
+  ON CONFLICT (id) DO UPDATE SET
+    display_name = EXCLUDED.display_name,
+    avatar_url = EXCLUDED.avatar_url,
+    is_guest = EXCLUDED.is_guest;
+    
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- トリガー登録
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
+  AFTER INSERT OR UPDATE ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
--- ==========================================
--- 4. パフォーマンス最適化 (インデックス作成)
--- ==========================================
-
+-- パフォーマンス用インデックス（検索を速くする）
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON public.posts(user_id);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON public.posts(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_posts_ui_type ON public.posts(ui_type);
-CREATE INDEX IF NOT EXISTS idx_posts_type_created ON public.posts(ui_type, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_post_tags_post_id ON public.post_tags(post_id);
-CREATE INDEX IF NOT EXISTS idx_post_tags_tag_id ON public.post_tags(tag_id);
-CREATE INDEX IF NOT EXISTS idx_comments_post_id ON public.comments(post_id);
-CREATE INDEX IF NOT EXISTS idx_comments_user_id ON public.comments(user_id);
-CREATE INDEX IF NOT EXISTS idx_comments_created_at ON public.comments(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_post_likes_post_id ON public.post_likes(post_id);
-CREATE INDEX IF NOT EXISTS idx_post_likes_user_id ON public.post_likes(user_id);
-CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON public.messages(sender_id);
-CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON public.messages(receiver_id);
-CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.messages(created_at DESC);
+-- ...他、v5.0にあるインデックス群

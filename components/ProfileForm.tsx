@@ -63,7 +63,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
                     <Link href="/" className="p-2 hover:bg-accent rounded-full transition-colors mr-2">
                         <ArrowLeft className="h-5 w-5" />
                     </Link>
-                    <div className="font-bold text-lg">プロフィール編集</div>
+                    <div className="font-bold text-lg">マイプロファイル</div>
                 </div>
             </header>
 
