@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { useTransition } from '@/components/providers/TransitionProvider';
 
@@ -8,22 +8,22 @@ export default function PageTransition({ children }: { children: React.ReactNode
     const pathname = usePathname();
     const { direction, originRect } = useTransition();
 
-    const variants = {
+    const variants: Variants = {
         enter: (direction: string) => {
             if (direction !== 'back' && originRect) {
-                // Expansion animation
+                // Expansion animation (Float up from card)
                 return {
                     clipPath: `inset(0px 0px 0px 0px round 0px)`,
                     opacity: 1,
+                    scale: 1,
+                    y: 0,
                     zIndex: 100,
                     transition: {
-                        type: 'spring' as const,
-                        stiffness: 300,
-                        damping: 30,
+                        duration: 0.5,
+                        ease: [0.22, 1, 0.36, 1], // Custom cubic bezier for smooth ease-out
                         clipPath: {
-                            type: 'spring' as const,
-                            stiffness: 300,
-                            damping: 30,
+                            duration: 0.5,
+                            ease: [0.22, 1, 0.36, 1],
                         }
                     }
                 };
@@ -46,6 +46,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
                 return {
                     clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 12px)`,
                     opacity: 1,
+                    scale: 0.95, // Start slightly smaller
+                    y: 20, // Start slightly lower
                     zIndex: 100
                 }
             }
@@ -64,9 +66,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
             zIndex: 1,
             clipPath: 'inset(0px 0px 0px 0px round 0px)',
             transition: {
-                type: 'spring' as const,
-                stiffness: 300,
-                damping: 30
+                duration: 0.5,
+                ease: [0.22, 1, 0.36, 1]
             }
         },
         exit: (direction: string) => ({
@@ -75,9 +76,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
             opacity: direction === 'back' ? 1 : 0,
             zIndex: direction === 'back' ? 50 : 0,
             transition: {
-                type: 'spring' as const,
-                stiffness: 300,
-                damping: 30
+                duration: 0.5,
+                ease: [0.22, 1, 0.36, 1]
             }
         })
     };
