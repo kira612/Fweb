@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import Header from "@/components/layout/Header";
 import { Analytics } from "@vercel/analytics/react"
 import { TransitionProvider } from '@/components/providers/TransitionProvider'
-import PageTransition from '@/components/layout/PageTransition'
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -29,9 +28,7 @@ export default async function RootLayout({
             )}>
                 <Header />
                 <TransitionProvider>
-                    <PageTransition>
-                        {children}
-                    </PageTransition>
+                    {children}
                     <Analytics />
                 </TransitionProvider>
             </body>
