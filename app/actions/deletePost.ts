@@ -1,15 +1,14 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
 export async function deletePost(postId: string) {
     console.log('[deletePost] Starting deletion for post:', postId)
     const supabase = createClient()
-    const cookieStore = cookies()
-    const userId = cookieStore.get('user_id')?.value
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id
 
     console.log('[deletePost] Current user ID:', userId)
 

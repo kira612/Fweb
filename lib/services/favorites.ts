@@ -16,7 +16,7 @@ export async function getFavoritePosts(userId: string) {
                 ui_type,
                 image_url,
                 created_at,
-                users(id, display_name, avatar_url),
+                users:users!posts_user_id_fkey(id, display_name, avatar_url),
                 post_tags(tags(id, name))
             )
         `)

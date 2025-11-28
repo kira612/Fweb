@@ -1,4 +1,4 @@
-import { Bell } from "lucide-react";
+import { Bell, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import SearchInput from "@/components/SearchInput";
 import UserAvatar from "@/components/UserAvatar";
@@ -16,6 +16,11 @@ export default function AppHeader({ currentUser, title = "Campus Connect" }: App
                 <div className="font-bold text-xl tracking-tight">{title}</div>
                 <SearchInput />
                 <div className="flex items-center gap-4">
+                    <Link href="/messages">
+                        <button className="p-2 hover:bg-accent rounded-full transition-colors">
+                            <MessageCircle className="h-5 w-5" />
+                        </button>
+                    </Link>
                     <button className="p-2 hover:bg-accent rounded-full transition-colors">
                         <Bell className="h-5 w-5" />
                     </button>

@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
 import { getPostById } from "@/lib/services/posts";
 import { getCommentsByPostId } from "@/lib/services/comments";
 import Image from "next/image";
@@ -12,9 +11,9 @@ import CommentSection from "@/components/features/post-detail/CommentSection";
 export const revalidate = 0;
 
 export default async function PostPage({ params }: { params: { id: string } }) {
-    const cookieStore = cookies();
-    const currentUserId = cookieStore.get("user_id")?.value;
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const currentUserId = user?.id;
 
     // Parallel data fetching for better performance
     const [post, comments, { count: likeCount }, { data: userLike }] = await Promise.all([

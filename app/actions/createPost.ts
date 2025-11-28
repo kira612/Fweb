@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
@@ -120,7 +119,7 @@ export async function createPost(formData: FormData) {
         // 5. Revalidate and Redirect
         revalidatePath('/')
         revalidatePath(`/posts/${post.id}`)
-        
+
         redirect(`/posts/${post.id}`)
 
     } catch (error: any) {

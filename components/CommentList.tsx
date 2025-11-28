@@ -27,10 +27,6 @@ export default function CommentList({ comments, currentUserId }: CommentListProp
                             key={comment.id}
                             className={clsx("flex gap-3", isSelf ? "flex-row-reverse" : "flex-row")}
                         >
-                            import DateFormatter from "@/components/ui/DateFormatter";
-                            import UserAvatar from "@/components/UserAvatar";
-
-                            // ...
 
                             {/* Avatar / Icon */}
                             <div className="flex-shrink-0">

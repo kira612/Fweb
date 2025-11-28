@@ -1,16 +1,15 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
 export async function addComment(formData: FormData) {
     const supabase = createClient()
-    const cookieStore = cookies()
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id
 
     const postId = formData.get('post_id') as string
     const content = formData.get('content') as string
-    const userId = cookieStore.get('user_id')?.value
 
     if (!postId || !content) {
         return { error: 'Content is required.' }

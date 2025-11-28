@@ -1,13 +1,12 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
 export async function toggleLike(postId: string) {
     const supabase = createClient()
-    const cookieStore = cookies()
-    const userId = cookieStore.get('user_id')?.value
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id
 
     if (!userId) {
         return { error: 'User not authenticated.' }
