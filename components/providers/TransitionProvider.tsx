@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 type TransitionDirection = 'forward' | 'back' | null;
@@ -26,43 +26,56 @@ const TransitionContext = createContext<TransitionContextType>({
 
 export function TransitionProvider({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const [history, setHistory] = useState<string[]>([]);
+    const historyRef = useRef<string[]>([]);
     const [direction, setDirection] = useState<TransitionDirection>(null);
     const [originRect, setOriginRect] = useState<OriginRect | null>(null);
 
+    // Initialize history only once
     useEffect(() => {
-        // Initialize history on mount
-        setHistory([pathname]);
+        if (historyRef.current.length === 0) {
+            historyRef.current.push(pathname);
+        }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        if (history.length === 0) return;
-
+    useLayoutEffect(() => {
         const currentPath = pathname;
+        const history = historyRef.current;
+
+        // If history is empty (first render), just push
+        if (history.length === 0) {
+            history.push(currentPath);
+            return;
+        }
+
+        const lastPath = history[history.length - 1];
         const previousPath = history[history.length - 2];
+
+        if (currentPath === lastPath) {
+            // Same path, do nothing
+            return;
+        }
 
         if (currentPath === previousPath) {
             // Back navigation
             setDirection('back');
-            setHistory((prev) => prev.slice(0, -1));
-            setOriginRect(null); // Reset origin rect on back
-        } else if (currentPath !== history[history.length - 1]) {
+            history.pop();
+            setOriginRect(null);
+        } else {
             // Forward navigation
             setDirection('forward');
-            setHistory((prev) => [...prev, currentPath]);
-            // Don't reset originRect here, it should be set by the click handler before navigation
+            history.push(currentPath);
         }
-    }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [pathname]);
 
-    // Reset originRect after animation (optional, but good practice to clean up)
+    // Reset originRect after animation
     useEffect(() => {
         if (originRect) {
             const timer = setTimeout(() => {
                 setOriginRect(null);
-            }, 1000); // Clear after transition
+            }, 1000);
             return () => clearTimeout(timer);
         }
-    }, [pathname]); // Clear when path changes (transition starts)
+    }, [pathname]);
 
     return (
         <TransitionContext.Provider value={{ direction, originRect, setOriginRect }}>

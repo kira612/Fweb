@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import SpringButton from "@/components/ui/SpringButton";
+import BackButton from "@/components/ui/BackButton";
 
 export const revalidate = 0;
 
@@ -33,6 +34,12 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
     return (
         <main className="min-h-screen bg-background pb-20">
             <div className="container py-8 max-w-2xl mx-auto space-y-8">
+                {/* Header */}
+                <div className="flex items-center gap-2 mb-6">
+                    <BackButton />
+                    <div className="font-bold text-lg">{profile.display_name}</div>
+                </div>
+
                 {/* Profile Header */}
                 <div className="flex flex-col items-center space-y-4">
                     <UserAvatar

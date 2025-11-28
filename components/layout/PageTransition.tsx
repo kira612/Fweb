@@ -1,9 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import { useTransition } from '@/components/providers/TransitionProvider';
 
-export default function Template({ children }: { children: React.ReactNode }) {
+export default function PageTransition({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
     const { direction, originRect } = useTransition();
 
     const variants = {
@@ -13,12 +15,11 @@ export default function Template({ children }: { children: React.ReactNode }) {
                 return {
                     clipPath: `inset(0px 0px 0px 0px round 0px)`,
                     opacity: 1,
-                    zIndex: 100, // Ensure it's on top
+                    zIndex: 100,
                     transition: {
                         type: 'spring' as const,
                         stiffness: 300,
                         damping: 30,
-                        // Initial state for clipPath (simulated via transition start)
                         clipPath: {
                             type: 'spring' as const,
                             stiffness: 300,
@@ -44,7 +45,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
                 const l = originRect.left;
                 return {
                     clipPath: `inset(${t}px ${r}px ${b}px ${l}px round 12px)`,
-                    opacity: 1, // Start visible but clipped
+                    opacity: 1,
                     zIndex: 100
                 }
             }
@@ -61,7 +62,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
             opacity: 1,
             scale: 1,
             zIndex: 1,
-            clipPath: 'inset(0px 0px 0px 0px round 0px)', // Ensure full view
+            clipPath: 'inset(0px 0px 0px 0px round 0px)',
             transition: {
                 type: 'spring' as const,
                 stiffness: 300,
@@ -69,10 +70,10 @@ export default function Template({ children }: { children: React.ReactNode }) {
             }
         },
         exit: (direction: string) => ({
-            y: direction === 'back' ? 0 : -20, // Forward exit: slight slide up
-            x: direction === 'back' ? '100%' : 0, // Back exit: slide right
-            opacity: direction === 'back' ? 1 : 0, // Back exit: keep opacity (slide out)
-            zIndex: direction === 'back' ? 50 : 0, // Back exit: on top
+            y: direction === 'back' ? 0 : -20,
+            x: direction === 'back' ? '100%' : 0,
+            opacity: direction === 'back' ? 1 : 0,
+            zIndex: direction === 'back' ? 50 : 0,
             transition: {
                 type: 'spring' as const,
                 stiffness: 300,
@@ -82,15 +83,18 @@ export default function Template({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <motion.div
-            custom={direction}
-            variants={variants}
-            initial="initial"
-            animate="center"
-            exit="exit"
-            className="min-h-screen bg-background"
-        >
-            {children}
-        </motion.div>
+        <AnimatePresence mode="popLayout" initial={false}>
+            <motion.div
+                key={pathname}
+                custom={direction}
+                variants={variants}
+                initial="initial"
+                animate="center"
+                exit="exit"
+                className="min-h-screen bg-background"
+            >
+                {children}
+            </motion.div>
+        </AnimatePresence>
     );
 }

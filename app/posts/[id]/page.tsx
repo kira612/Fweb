@@ -43,7 +43,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
         <main className="min-h-screen pb-24 bg-slate-50">
             {/* Toolbar */}
             <div className="bg-white border-b">
-                <div className="container max-w-2xl py-4 flex items-center justify-between">
+                <div className="container max-w-2xl h-14 flex items-center">
                     <BackButton />
                 </div>
             </div>

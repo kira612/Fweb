@@ -3,12 +3,13 @@
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ArrowLeft, BookOpen, MessageCircle } from 'lucide-react'
+import { BookOpen, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ArticlePostForm from '@/components/features/post/ArticlePostForm'
 import TalkPostForm from '@/components/features/post/TalkPostForm'
+import BackButton from '@/components/ui/BackButton'
 
 export default function NewPostClient() {
     const [postType, setPostType] = useState<'Article' | 'Talk'>('Talk')
@@ -20,9 +21,7 @@ export default function NewPostClient() {
             {/* Header */}
             <div className="bg-white border-b">
                 <div className="container flex h-14 items-center">
-                    <Link href="/" className="p-2 hover:bg-accent rounded-full transition-colors mr-2">
-                        <ArrowLeft className="h-5 w-5" />
-                    </Link>
+                    <BackButton className="mr-2" />
                     <div className="font-bold text-lg">新規投稿</div>
                 </div>
             </div>
