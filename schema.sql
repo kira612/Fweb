@@ -180,3 +180,28 @@ CREATE INDEX IF NOT EXISTS idx_messages_unread ON public.messages(receiver_id) W
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.comments;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
+
+
+-- ==========================================
+-- 6. Storage Policies (Message Images)
+-- ==========================================
+
+-- 1. Create the bucket 'message_images' if it doesn't exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('message_images', 'message_images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. Enable RLS on objects (Skipped: usually enabled by default and requires high privileges)
+-- ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- 3. Policy: Allow authenticated users to upload images
+CREATE POLICY "Authenticated users can upload message images"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'message_images');
+
+-- 4. Policy: Allow public to view images
+CREATE POLICY "Public can view message images"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'message_images');
