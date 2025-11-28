@@ -12,7 +12,7 @@ interface PostCardProps {
 import PostTypeBadge from "@/components/ui/PostTypeBadge";
 import DateFormatter from "@/components/ui/DateFormatter";
 import UserAvatar from "@/components/UserAvatar";
-import { useTransition } from '@/components/providers/TransitionProvider';
+
 
 // ... (imports)
 
@@ -21,16 +21,10 @@ export default function PostCard({ post }: PostCardProps) {
     const author = post.user?.display_name || "名無し";
     const type = post.ui_type || "Talk";
     const comments = post.comments_count || 0;
-    const { setOriginRect } = useTransition();
+
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        setOriginRect({
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-        });
+        // No custom logic needed for new transition system
     };
 
     return (

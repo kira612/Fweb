@@ -4,7 +4,6 @@ import { PenLine } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useTransition } from '@/components/providers/TransitionProvider'
 import LoginAlertModal from './LoginAlertModal'
 
 interface CreatePostFabProps {
@@ -13,19 +12,10 @@ interface CreatePostFabProps {
 
 export default function CreatePostFab({ isLoggedIn }: CreatePostFabProps) {
     const router = useRouter()
-    const { setOriginRect } = useTransition()
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (isLoggedIn) {
-            // Capture the button's position for the expansion animation
-            const rect = e.currentTarget.getBoundingClientRect();
-            setOriginRect({
-                top: rect.top,
-                left: rect.left,
-                width: rect.width,
-                height: rect.height
-            });
             router.push('/posts/new')
         } else {
             setIsLoginModalOpen(true)
