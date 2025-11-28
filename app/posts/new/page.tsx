@@ -83,7 +83,7 @@ export default function NewPostPage() {
                             value={tagInput}
                             onChange={(e) => setTagInput(e.target.value)}
                             onKeyDown={handleTagKeyDown}
-                            placeholder="例: #楽単 #プログラミング"
+                            placeholder="例: 楽単 プログラミング"
                         />
                     </div>
 
