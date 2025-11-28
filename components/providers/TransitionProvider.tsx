@@ -55,13 +55,17 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
             return;
         }
 
+        console.log('Navigating:', { currentPath, lastPath, previousPath, history: [...history] });
+
         if (currentPath === previousPath) {
             // Back navigation
+            console.log('Direction: BACK');
             setDirection('back');
             history.pop();
             setOriginRect(null);
         } else {
             // Forward navigation
+            console.log('Direction: FORWARD');
             setDirection('forward');
             history.push(currentPath);
         }
