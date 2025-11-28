@@ -43,7 +43,7 @@ export default async function Header() {
                         <>
                             <Link href="/messages">
                                 <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
-                                    <DmIcon initialUnreadCount={unreadCount} userId={user.id} />
+                                    <DmIcon initialUnreadCount={unreadCount} userId={currentUser.id} />
                                 </div>
                             </Link>
                             <Link href="/favorites">
