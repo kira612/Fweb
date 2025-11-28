@@ -1,4 +1,5 @@
 import { Heart, LogIn } from "lucide-react";
+import * as motion from "framer-motion/client";
 import Link from "next/link";
 import SearchInput from "@/components/SearchInput";
 import UserAvatar from "@/components/UserAvatar";
@@ -35,38 +36,50 @@ export default async function Header() {
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center justify-between gap-4">
-                <Link href="/" className="font-bold text-xl tracking-tight hover:opacity-80 transition-opacity">
-                    福公大掲示板β
+                <Link href="/">
+                    <motion.div
+                        whileHover={{ y: -2 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        className="font-bold text-xl tracking-tight"
+                    >
+                        福公大掲示板β
+                    </motion.div>
                 </Link>
                 <SearchInput />
                 <div className="flex items-center gap-4">
                     {currentUser ? (
                         <>
                             <Link href="/messages">
-                                <SpringButton asChild>
-                                    <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
-                                        <DmIcon initialUnreadCount={unreadCount} userId={currentUser.id} />
-                                    </div>
-                                </SpringButton>
+                                <motion.div
+                                    whileHover={{ y: -2 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                    className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer"
+                                >
+                                    <DmIcon initialUnreadCount={unreadCount} userId={currentUser.id} />
+                                </motion.div>
                             </Link>
                             <Link href="/favorites">
-                                <SpringButton asChild>
-                                    <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
-                                        <Heart className="h-5 w-5" />
-                                    </div>
-                                </SpringButton>
+                                <motion.div
+                                    whileHover={{ y: -2 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                    className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer"
+                                >
+                                    <Heart className="h-5 w-5" />
+                                </motion.div>
                             </Link>
 
                             <Link href="/profile">
-                                <SpringButton asChild>
-                                    <div className="cursor-pointer hover:opacity-80 transition-opacity">
-                                        <UserAvatar
-                                            avatarUrl={currentUser?.avatar_url}
-                                            displayName={currentUser?.display_name}
-                                            size="sm"
-                                        />
-                                    </div>
-                                </SpringButton>
+                                <motion.div
+                                    whileHover={{ y: -2 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                    className="cursor-pointer"
+                                >
+                                    <UserAvatar
+                                        avatarUrl={currentUser?.avatar_url}
+                                        displayName={currentUser?.display_name}
+                                        size="sm"
+                                    />
+                                </motion.div>
                             </Link>
                         </>
                     ) : (
