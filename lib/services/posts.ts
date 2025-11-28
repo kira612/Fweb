@@ -13,6 +13,7 @@ export async function getPosts() {
             ),
             post_tags!post_id (
                 tags (
+                    id,
                     name
                 )
             ),
