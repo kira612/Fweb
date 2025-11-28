@@ -40,7 +40,7 @@ export default async function Header() {
                     <motion.div
                         whileHover={{ y: -2 }}
                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                        className="font-bold text-xl tracking-tight"
+                        className="font-bold text-xl tracking-tight text-gradient-main"
                     >
                         福公大掲示板β
                     </motion.div>
