@@ -34,12 +34,19 @@ export default function NewPostClient() {
                         onValueChange={(value) => setPostType(value as 'Article' | 'Talk')}
                         className="grid grid-cols-2 gap-4"
                     >
-                        <div>
+                        <div className="relative">
                             <RadioGroupItem value="Article" id="article" className="peer sr-only" />
                             <Label
                                 htmlFor="article"
-                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer relative z-10 h-full"
                             >
+                                {postType === 'Article' && (
+                                    <motion.div
+                                        layoutId="active-post-type"
+                                        className="absolute inset-0 border-2 border-primary rounded-md z-[-1]"
+                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                    />
+                                )}
                                 <BookOpen className="mb-3 h-6 w-6" />
                                 <div className="text-center">
                                     <div className="font-semibold">Article</div>
@@ -47,12 +54,19 @@ export default function NewPostClient() {
                                 </div>
                             </Label>
                         </div>
-                        <div>
+                        <div className="relative">
                             <RadioGroupItem value="Talk" id="talk" className="peer sr-only" />
                             <Label
                                 htmlFor="talk"
-                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer relative z-10 h-full"
                             >
+                                {postType === 'Talk' && (
+                                    <motion.div
+                                        layoutId="active-post-type"
+                                        className="absolute inset-0 border-2 border-primary rounded-md z-[-1]"
+                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                    />
+                                )}
                                 <MessageCircle className="mb-3 h-6 w-6" />
                                 <div className="text-center">
                                     <div className="font-semibold">Talk</div>
