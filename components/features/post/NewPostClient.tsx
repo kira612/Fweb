@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ArrowLeft, BookOpen, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import ArticlePostForm from '@/components/features/post/ArticlePostForm'
 import TalkPostForm from '@/components/features/post/TalkPostForm'
 
@@ -63,7 +64,31 @@ export default function NewPostClient() {
                 </div>
 
                 {/* Render appropriate form based on selected type */}
-                {postType === 'Article' ? <ArticlePostForm /> : <TalkPostForm />}
+                <div className="relative min-h-[400px]">
+                    <AnimatePresence mode="wait">
+                        {postType === 'Article' ? (
+                            <motion.div
+                                key="Article"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            >
+                                <ArticlePostForm />
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="Talk"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            >
+                                <TalkPostForm />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
         </main>
     )
