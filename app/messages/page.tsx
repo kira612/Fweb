@@ -4,6 +4,7 @@ import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
 import DateFormatter from "@/components/ui/DateFormatter";
 import { Card } from "@/components/ui/card";
+import clsx from "clsx";
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +43,14 @@ export default async function MessagesPage() {
             conversationsMap.set(partner.id, {
                 partner,
                 lastMessage: msg,
+                unreadCount: 0,
             });
+        }
+
+        // Count unread messages from this partner
+        if (msg.sender_id === partner.id && msg.receiver_id === user.id && !msg.is_read) {
+            const conv = conversationsMap.get(partner.id);
+            conv.unreadCount += 1;
         }
     });
 
@@ -60,20 +68,25 @@ export default async function MessagesPage() {
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {conversations.map(({ partner, lastMessage }) => (
+                    {conversations.map(({ partner, lastMessage, unreadCount }) => (
                         <Link key={partner.id} href={`/messages/${partner.id}`} className="block">
                             <Card className="p-4 hover:bg-accent/50 transition-colors flex items-center gap-4">
-                                <UserAvatar
-                                    avatarUrl={partner.avatar_url}
-                                    displayName={partner.display_name}
-                                    size="md"
-                                />
+                                <div className="relative">
+                                    <UserAvatar
+                                        avatarUrl={partner.avatar_url}
+                                        displayName={partner.display_name}
+                                        size="md"
+                                    />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-black ring-2 ring-background" />
+                                    )}
+                                </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-baseline mb-1">
                                         <h3 className="font-semibold truncate">{partner.display_name}</h3>
                                         <DateFormatter date={lastMessage.created_at} className="text-xs text-muted-foreground flex-shrink-0" />
                                     </div>
-                                    <p className="text-sm text-muted-foreground truncate">
+                                    <p className={clsx("text-sm truncate", unreadCount > 0 ? "font-bold text-foreground" : "text-muted-foreground")}>
                                         {lastMessage.sender_id === user.id && "あなた: "}
                                         {lastMessage.content}
                                     </p>

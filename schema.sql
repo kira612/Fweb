@@ -45,14 +45,17 @@ CREATE TABLE public.post_tags (
   PRIMARY KEY (post_id, tag_id)
 );
 
--- 6. Messages table
+-- 6. Messages table (画像送信対応)
 CREATE TABLE public.messages (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   sender_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   receiver_id uuid REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
-  content text NOT NULL,
+  content text, -- 画像のみの場合も考慮してNULL許可
+  image_url text, -- 画像URL用カラム追加
   is_read boolean DEFAULT false,
-  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  -- コンテンツか画像のどちらかは必ず存在することを確認する制約
+  CONSTRAINT messages_content_or_image_check CHECK (content IS NOT NULL OR image_url IS NOT NULL)
 );
 
 -- 7. Post Likes table
@@ -103,6 +106,7 @@ CREATE POLICY "Users can delete post_tags via post" ON public.post_tags FOR DELE
 -- --- Messages ---
 CREATE POLICY "Users can view own messages" ON public.messages FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
 CREATE POLICY "Users can send messages" ON public.messages FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = sender_id);
+CREATE POLICY "Users can update received messages" ON public.messages FOR UPDATE USING (auth.uid() = receiver_id);
 CREATE POLICY "Users can delete own messages" ON public.messages FOR DELETE USING (auth.uid() = sender_id);
 
 -- --- Post Likes ---
@@ -167,15 +171,12 @@ CREATE INDEX IF NOT EXISTS idx_post_likes_user_id ON public.post_likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON public.messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON public.messages(receiver_id);
 CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_unread ON public.messages(receiver_id) WHERE is_read = false;
 
 
 -- ==========================================
 -- 5. Realtime設定 (WebSocket有効化)
 -- ==========================================
--- 掲示板のコメントとDMのメッセージをリアルタイム配信対象に追加
-
--- 既にPublicationが存在するか確認しつつ追加（エラー回避のためdoブロックは使わず、単純に追加コマンドを実行）
--- ※ Supabaseではデフォルトで 'supabase_realtime' という publication が作成されています。
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.comments;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;

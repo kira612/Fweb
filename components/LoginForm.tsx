@@ -34,8 +34,7 @@ export default function LoginForm() {
             }
 
             router.refresh()
-            router.refresh()
-            router.push('/profile')
+            window.location.href = '/'
         } catch (err: any) {
             setError(err.message || 'ログインに失敗しました')
         } finally {
@@ -48,7 +47,7 @@ export default function LoginForm() {
         setError(null)
 
         try {
-            const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -60,7 +59,22 @@ export default function LoginForm() {
                 throw error
             }
 
-            setError('確認メールを送信しました。メール内のリンクをクリックして登録を完了してください。')
+            // If signup didn't return a session, try to sign in manually
+            // (This handles cases where email confirmation is disabled but session isn't returned immediately)
+            if (!data.session) {
+                const { error: signInError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                })
+
+                if (signInError) {
+                    throw signInError
+                }
+            }
+
+            // Login successful
+            router.refresh()
+            window.location.href = '/'
         } catch (err: any) {
             setError(err.message || '登録に失敗しました')
         } finally {

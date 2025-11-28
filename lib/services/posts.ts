@@ -6,7 +6,12 @@ export async function getPosts(userId?: string) {
     let query = supabase
         .from("posts")
         .select(`
-            *,
+            id,
+            title,
+            ui_type,
+            image_url,
+            created_at,
+            user_id,
             users!user_id (
                 display_name,
                 avatar_url
@@ -17,7 +22,8 @@ export async function getPosts(userId?: string) {
                     name
                 )
             ),
-            comments (count)
+            comments (count),
+            post_likes (count)
         `)
         .order("created_at", { ascending: false });
 
@@ -35,7 +41,7 @@ export async function getPosts(userId?: string) {
     return data.map((post: any) => ({
         id: post.id,
         title: post.title,
-        content: post.content,
+        content: "", // Optimized: Content not fetched for list view to reduce payload
         ui_type: post.ui_type,
         image_url: post.image_url,
         created_at: post.created_at,
@@ -45,10 +51,10 @@ export async function getPosts(userId?: string) {
             avatar_url: post.users?.avatar_url,
         },
         tags: post.post_tags?.map((pt: any) => ({
-            id: pt.tags?.id, // Note: id might be missing in select, need to check query
+            id: pt.tags?.id,
             name: pt.tags?.name,
         })) || [],
-        likes_count: 0, // TODO: Implement likes count
+        likes_count: post.post_likes?.[0]?.count || 0,
         comments_count: post.comments?.[0]?.count || 0,
     })) as Post[];
 }

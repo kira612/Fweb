@@ -19,7 +19,7 @@ export default function DateFormatter({ date, formatType = 'relative', className
     }
 
     return (
-        <span className={className}>
+        <span className={className} suppressHydrationWarning>
             {formatDistanceToNow(dateObj, { addSuffix: true, locale: ja })}
         </span>
     );

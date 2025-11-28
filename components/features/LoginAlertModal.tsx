@@ -22,7 +22,7 @@ export default function LoginAlertModal({ isOpen, onClose }: LoginAlertModalProp
             <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 animate-in zoom-in-95 duration-200">
                 <h2 className="text-lg font-bold mb-2">ログインが必要です</h2>
                 <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
-                    投稿機能を利用するにはログインが必要です。<br />
+                    この機能を利用するにはログインが必要です。<br />
                     ログイン画面へ移動しますか？
                 </p>
                 <div className="flex justify-end gap-3">

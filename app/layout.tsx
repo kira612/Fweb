@@ -7,8 +7,8 @@ import Header from "@/components/layout/Header";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-    title: "福公大掲示板",
-    description: "University Bulletin Board",
+    title: "福公大掲示板β",
+    description: "福公大生のための掲示板アプリ",
 };
 
 export const dynamic = 'force-dynamic';

@@ -63,7 +63,7 @@ export default function CommentSection({ comments: initialComments, currentUserI
     return (
         <>
             <CommentList comments={comments} currentUserId={currentUserId} />
-            <CommentForm postId={postId} />
+            <CommentForm postId={postId} currentUserId={currentUserId} />
         </>
     );
 }

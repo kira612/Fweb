@@ -1,4 +1,4 @@
-import { Bell, Heart, LogIn } from "lucide-react";
+import { Heart, LogIn } from "lucide-react";
 import Link from "next/link";
 import SearchInput from "@/components/SearchInput";
 import UserAvatar from "@/components/UserAvatar";
@@ -35,25 +35,22 @@ export default async function Header() {
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center justify-between gap-4">
                 <Link href="/" className="font-bold text-xl tracking-tight hover:opacity-80 transition-opacity">
-                    福公大掲示板
+                    福公大掲示板β
                 </Link>
                 <SearchInput />
                 <div className="flex items-center gap-4">
                     {currentUser ? (
                         <>
                             <Link href="/messages">
-                                <button className="p-2 hover:bg-accent rounded-full transition-colors">
+                                <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
                                     <DmIcon initialUnreadCount={unreadCount} userId={user.id} />
-                                </button>
+                                </div>
                             </Link>
                             <Link href="/favorites">
-                                <button className="p-2 hover:bg-accent rounded-full transition-colors">
+                                <div className="p-2 hover:bg-accent rounded-full transition-colors cursor-pointer">
                                     <Heart className="h-5 w-5" />
-                                </button>
+                                </div>
                             </Link>
-                            <button className="p-2 hover:bg-accent rounded-full transition-colors">
-                                <Bell className="h-5 w-5" />
-                            </button>
 
                             <Link href="/profile">
                                 <div className="cursor-pointer hover:opacity-80 transition-opacity">

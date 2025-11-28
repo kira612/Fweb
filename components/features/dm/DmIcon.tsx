@@ -18,19 +18,31 @@ export default function DmIcon({ initialUnreadCount, userId }: DmIconProps) {
         setUnreadCount(initialUnreadCount);
     }, [initialUnreadCount]);
 
+    const fetchCount = async () => {
+        const { count } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('receiver_id', userId)
+            .eq('is_read', false);
+        setUnreadCount(count || 0);
+    };
+
     useEffect(() => {
+        // Fetch on mount to ensure accuracy if navigated from client-side cache
+        fetchCount();
+
         const channel = supabase
             .channel('dm-notifications')
             .on(
                 'postgres_changes',
                 {
-                    event: 'INSERT',
+                    event: '*',
                     schema: 'public',
                     table: 'messages',
                     filter: `receiver_id=eq.${userId}`,
                 },
-                (payload) => {
-                    setUnreadCount((prev) => prev + 1);
+                () => {
+                    fetchCount();
                 }
             )
             .subscribe();
@@ -38,13 +50,13 @@ export default function DmIcon({ initialUnreadCount, userId }: DmIconProps) {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [supabase, userId]);
+    }, [userId]);
 
     return (
         <div className="relative">
             <MessageCircle className="h-5 w-5" />
             {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background animate-pulse" />
+                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-black ring-2 ring-background" />
             )}
         </div>
     );

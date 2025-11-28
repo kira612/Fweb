@@ -13,9 +13,32 @@ export async function sendMessage(formData: FormData) {
 
     const content = formData.get('content') as string;
     const receiverId = formData.get('receiverId') as string;
+    const imageFile = formData.get('image') as File | null;
 
-    if (!content || !receiverId) {
-        return { error: 'メッセージ内容と送信先が必要です' };
+    if ((!content && !imageFile) || !receiverId) {
+        return { error: 'メッセージ内容または画像と、送信先が必要です' };
+    }
+
+    let imageUrl = null;
+
+    if (imageFile && imageFile.size > 0) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `dm/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('message_images')
+            .upload(fileName, imageFile);
+
+        if (uploadError) {
+            console.error('Error uploading image:', uploadError);
+            return { error: '画像のアップロードに失敗しました' };
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('message_images')
+            .getPublicUrl(fileName);
+
+        imageUrl = publicUrl;
     }
 
     const { data, error } = await supabase
@@ -23,7 +46,8 @@ export async function sendMessage(formData: FormData) {
         .insert({
             sender_id: user.id,
             receiver_id: receiverId,
-            content: content,
+            content: content || null, // Allow null if image is present
+            image_url: imageUrl,
         })
         .select()
         .single();
